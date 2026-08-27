@@ -1,11 +1,15 @@
 // Ticketing Portal schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Vercel's serverless functions run on a different Linux image than the
+  // build step; without this, Prisma's engine binary from the build often
+  // doesn't match what's available at runtime ("Query Engine not found").
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
