@@ -18,7 +18,7 @@ export default async function HomePage({
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-10 md:flex-row md:items-start">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-4 py-10 md:flex-row md:items-start md:justify-center">
       {/* Poster + trailer - left column on desktop, stacked on top on mobile */}
       <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
         <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-lg border border-black/10 dark:border-white/15 md:mx-0 md:max-w-none">
@@ -31,7 +31,7 @@ export default async function HomePage({
             priority
           />
         </div>
-        <div className="space-y-1 text-center md:text-left">
+        <div className="space-y-1 text-center">
           <h1 className="text-2xl font-semibold">Ticket Request</h1>
           <a
             href={TRAILER_URL}
@@ -45,7 +45,7 @@ export default async function HomePage({
       </div>
 
       {/* Form - right column on desktop, below on mobile */}
-      <div className="flex min-w-0 flex-1 flex-col gap-6">
+      <div className="flex w-full min-w-0 max-w-lg flex-col gap-6">
         <p className="text-sm text-black/60 dark:text-white/60">
           Fill this in to request tickets. Requests are handled strictly first-come,
           first-served once the coordinator reviews them.
@@ -71,7 +71,7 @@ export default async function HomePage({
             The portal isn&apos;t configured yet &mdash; no categories or regions found.
           </p>
         ) : (
-          <form action={createBooking} className="flex max-w-lg flex-col gap-4">
+          <form action={createBooking} className="flex flex-col gap-4">
             <Field label="Full name">
               <input
                 name="name"
