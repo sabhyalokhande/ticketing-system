@@ -1,0 +1,104 @@
+"use server";
+
+import { z } from "zod";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { generateBookingRef } from "@/lib/ref";
+import { expireStaleBookings } from "@/lib/expiry";
+
+const bookingSchema = z.object({
+  name: z.string().trim().min(2, "Enter your full name").max(100),
+  mobile: z
+    .string()
+    .trim()
+    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+  categoryId: z.string().min(1, "Select a category"),
+  regionId: z.string().min(1, "Select a region"),
+  quantity: z.coerce.number().int().min(1, "At least 1 ticket").max(10, "Max 10 tickets per request"),
+});
+
+export async function createBooking(formData: FormData) {
+  const parsed = bookingSchema.safeParse({
+    name: formData.get("name"),
+    mobile: formData.get("mobile"),
+    categoryId: formData.get("categoryId"),
+    regionId: formData.get("regionId"),
+    quantity: formData.get("quantity"),
+  });
+
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Invalid submission";
+    redirect(`/?error=${encodeURIComponent(message)}`);
+  }
+
+  const { name, mobile, categoryId, regionId, quantity } = parsed.data;
+
+  const [category, region] = await Promise.all([
+    prisma.category.findUnique({ where: { id: categoryId } }),
+    prisma.region.findUnique({ where: { id: regionId } }),
+  ]);
+  if (!category || !region) {
+    redirect(`/?error=${encodeURIComponent("Category or region no longer available")}`);
+  }
+
+  const ref = await generateBookingRef();
+
+  await prisma.booking.create({
+    data: {
+      ref,
+      name,
+      mobile,
+      quantity,
+      categoryId,
+      regionId,
+      status: "PENDING",
+    },
+  });
+
+  redirect(`/status?ref=${ref}&mobile=${mobile}&justSubmitted=1`);
+}
+
+const paymentSchema = z.object({
+  ref: z.string().trim().min(1),
+  mobile: z.string().trim().min(1),
+  transactionDetails: z.string().trim().min(3, "Paste your transaction/UTR details").max(500),
+});
+
+export async function submitPayment(formData: FormData) {
+  await expireStaleBookings();
+
+  const parsed = paymentSchema.safeParse({
+    ref: formData.get("ref"),
+    mobile: formData.get("mobile"),
+    transactionDetails: formData.get("transactionDetails"),
+  });
+
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Invalid submission";
+    const ref = String(formData.get("ref") ?? "");
+    const mobile = String(formData.get("mobile") ?? "");
+    redirect(`/status?ref=${ref}&mobile=${mobile}&error=${encodeURIComponent(message)}`);
+  }
+
+  const { ref, mobile, transactionDetails } = parsed.data;
+
+  const booking = await prisma.booking.findFirst({ where: { ref, mobile } });
+  if (!booking || booking.status !== "ALLOCATED") {
+    redirect(
+      `/status?ref=${ref}&mobile=${mobile}&error=${encodeURIComponent(
+        "This booking is not awaiting payment right now."
+      )}`
+    );
+  }
+
+  await prisma.booking.update({
+    where: { id: booking!.id },
+    data: {
+      status: "PAYMENT_SUBMITTED",
+      transactionDetails,
+      paymentSubmittedAt: new Date(),
+    },
+  });
+
+  redirect(`/status?ref=${ref}&mobile=${mobile}`);
+}

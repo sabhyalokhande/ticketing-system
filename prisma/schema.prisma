@@ -1,0 +1,88 @@
+// Ticketing Portal schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique // "Class A" | "Class B" | "Class C"
+  price     Int // price per ticket, in rupees
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  seats    Seat[]
+}
+
+// A single named seat within a category (e.g. "A-014"). Seats are the unit
+// the coordinator actually allocates - visually, one click each - rather
+// than a bare inventory count. bookingId is null while the seat is free.
+model Seat {
+  id         String   @id @default(cuid())
+  label      String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  bookingId  String?
+  booking    Booking? @relation(fields: [bookingId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([categoryId, label])
+  @@index([bookingId])
+}
+
+model Region {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  bookings Booking[]
+}
+
+// Booking lifecycle:
+// PENDING            -> just submitted by the requester, awaiting coordinator review
+// ALLOCATED          -> coordinator blocked the tickets; payment QR shown; expiresAt set (24h)
+// PAYMENT_SUBMITTED  -> requester pasted transaction details; awaiting coordinator verification
+// CONFIRMED          -> coordinator verified payment; tickets are final
+// REJECTED           -> coordinator declined the request (before or after payment)
+// EXPIRED            -> 24h window passed without payment submission; inventory released
+model Booking {
+  id       String @id @default(cuid())
+  ref      String @unique // short human-friendly reference code shown to the requester
+
+  name        String
+  mobile      String
+  quantity    Int
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+  regionId   String
+  region     Region   @relation(fields: [regionId], references: [id])
+
+  status String @default("PENDING")
+
+  amountDue Int? // price * quantity, set on allocation
+
+  allocatedAt DateTime?
+  expiresAt   DateTime? // allocatedAt + 24h
+
+  transactionDetails String? // pasted by payer
+  paymentSubmittedAt DateTime?
+
+  confirmedAt DateTime?
+  rejectedAt  DateTime?
+  rejectionReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seats Seat[]
+
+  @@index([status])
+  @@index([mobile])
+}
