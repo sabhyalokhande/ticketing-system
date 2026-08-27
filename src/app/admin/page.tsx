@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { expireStaleBookings } from "@/lib/expiry";
 import { StatusBadge } from "@/components/StatusBadge";
+import { ShareLinkButtons } from "@/components/ShareLinkButtons";
 import {
   adminLogout,
   rejectBooking,
@@ -185,19 +186,30 @@ export default async function AdminPage({
         {allocated.length === 0 ? (
           <Empty text="Nothing blocked right now." />
         ) : (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             {allocated.map((b) => (
-              <div key={b.id} className="card flex flex-wrap items-center gap-3 text-sm">
-                <BookingSummary booking={b} />
-                <span className="text-black/50 dark:text-white/50">₹{b.amountDue}</span>
-                {b.expiresAt && (
-                  <span className="text-red-600 dark:text-red-400">
-                    due by {b.expiresAt.toLocaleString()}
-                  </span>
-                )}
-                <div className="ml-auto flex gap-2">
-                  <RejectForm bookingId={b.id} />
+              <div key={b.id} className="card flex flex-col gap-3 text-sm">
+                <div className="flex flex-wrap items-center gap-3">
+                  <BookingSummary booking={b} />
+                  <span className="text-black/50 dark:text-white/50">₹{b.amountDue}</span>
+                  {b.expiresAt && (
+                    <span className="text-red-600 dark:text-red-400">
+                      due by {b.expiresAt.toLocaleString()}
+                    </span>
+                  )}
+                  <div className="ml-auto">
+                    <RejectForm bookingId={b.id} />
+                  </div>
                 </div>
+                <ShareLinkButtons
+                  bookingRef={b.ref}
+                  mobile={b.mobile}
+                  name={b.name}
+                  quantity={b.quantity}
+                  categoryName={b.category.name}
+                  amountDue={b.amountDue ?? 0}
+                  deadlineText={b.expiresAt?.toLocaleString()}
+                />
               </div>
             ))}
           </div>
