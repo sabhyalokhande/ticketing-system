@@ -1,6 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createBooking } from "./actions";
+
+const TRAILER_URL =
+  "https://www.youtube.com/results?search_query=machya+pidhichi+goshtach+vegali";
 
 export default async function HomePage({
   searchParams,
@@ -16,8 +20,28 @@ export default async function HomePage({
 
   return (
     <main className="mx-auto flex w-full max-w-lg flex-1 flex-col gap-6 px-4 py-10">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Ticket Request</h1>
+      <header className="space-y-3">
+        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+          <Image
+            src="/Drama-Image.jpeg"
+            alt="Aamchya Pidhichi Goshtach Vegali - play poster"
+            width={1280}
+            height={1600}
+            className="h-auto w-full"
+            priority
+          />
+        </div>
+        <div className="space-y-1 text-center">
+          <h1 className="text-2xl font-semibold">Ticket Request</h1>
+          <a
+            href={TRAILER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block text-sm font-medium underline"
+          >
+            Watch trailer on YouTube
+          </a>
+        </div>
         <p className="text-sm text-black/60 dark:text-white/60">
           Fill this in to request tickets. Requests are handled strictly first-come,
           first-served once the coordinator reviews them.

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ticketing Portal",
-  description: "Request, block, and pay for tickets",
+  title: "Aamchya Pidhichi Goshtach Vegali - Tickets",
+  description: "Request, block, and pay for tickets to the play",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
