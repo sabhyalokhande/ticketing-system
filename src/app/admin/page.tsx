@@ -47,11 +47,13 @@ export default async function AdminPage({
       prisma.booking.findMany({
         where: { status: "PAYMENT_SUBMITTED" },
         include: { category: true, region: true, ...seatSelect },
+        omit: { paymentScreenshot: true },
         orderBy: { paymentSubmittedAt: "asc" },
       }),
       prisma.booking.findMany({
         where: { status: { in: ["CONFIRMED", "REJECTED", "EXPIRED"] } },
         include: { category: true, region: true, ...seatSelect },
+        omit: { paymentScreenshot: true },
         orderBy: { updatedAt: "desc" },
         take: 30,
       }),
@@ -231,6 +233,20 @@ export default async function AdminPage({
                 <p className="rounded bg-black/5 px-2 py-1 font-mono text-xs dark:bg-white/10">
                   {b.transactionDetails}
                 </p>
+                {b.paymentScreenshotType && (
+                  <a
+                    href={`/api/bookings/${b.id}/screenshot`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/api/bookings/${b.id}/screenshot`}
+                      alt="Payment screenshot"
+                      className="h-40 w-fit rounded-lg border border-black/10 dark:border-white/15"
+                    />
+                  </a>
+                )}
                 <div className="flex gap-2 self-end">
                   <form action={confirmPayment.bind(null, b.id)}>
                     <button type="submit" className="btn-primary">

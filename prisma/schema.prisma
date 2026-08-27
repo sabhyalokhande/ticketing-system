@@ -76,6 +76,8 @@ model Booking {
   expiresAt   DateTime? // allocatedAt + 24h
 
   transactionDetails String? // pasted by payer
+  paymentScreenshot     Bytes? // optional payment proof, uploaded by payer
+  paymentScreenshotType String? // mime type of the above, e.g. "image/jpeg"
   paymentSubmittedAt DateTime?
 
   confirmedAt DateTime?

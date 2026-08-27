@@ -12,9 +12,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = "https://ticketing-system-lime-zeta.vercel.app";
+const TITLE = "Aamchya Pidhichi Goshtach Vegali - Tickets";
+const DESCRIPTION = "Request, block, and pay for tickets to the play";
+
 export const metadata: Metadata = {
-  title: "Aamchya Pidhichi Goshtach Vegali - Tickets",
-  description: "Request, block, and pay for tickets to the play",
+  // Required for Next to turn the relative OG image path below into the
+  // absolute URL that link-preview crawlers (WhatsApp, etc.) need.
+  metadataBase: new URL(SITE_URL),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/Drama-Image.jpeg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/Drama-Image.jpeg"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

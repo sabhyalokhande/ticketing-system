@@ -66,6 +66,8 @@ export default async function StatusPage({
   const booking = await prisma.booking.findFirst({
     where: { ref: ref.trim().toUpperCase(), mobile: mobile.trim() },
     include: { category: true, region: true, seats: { select: { label: true }, orderBy: { label: "asc" } } },
+    // The screenshot itself can be several MB - never pull it into a page render.
+    omit: { paymentScreenshot: true },
   });
 
   if (!booking) {
@@ -176,6 +178,15 @@ export default async function StatusPage({
                 className="input"
               />
             </label>
+            <label className="flex flex-col gap-1 text-sm font-medium">
+              Payment screenshot (optional)
+              <input
+                name="screenshot"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                className="input file:mr-3 file:rounded file:border-0 file:bg-black/10 file:px-2 file:py-1 file:text-xs dark:file:bg-white/10"
+              />
+            </label>
             <button type="submit" className="btn-primary">
               Submit payment details
             </button>
@@ -189,6 +200,14 @@ export default async function StatusPage({
           <p className="text-black/50 dark:text-white/50">
             Submitted transaction details: <span className="font-mono">{booking.transactionDetails}</span>
           </p>
+          {booking.paymentScreenshotType && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/api/bookings/${booking.id}/screenshot`}
+              alt="Uploaded payment screenshot"
+              className="max-h-80 w-fit rounded-lg border border-black/10 dark:border-white/15"
+            />
+          )}
         </div>
       )}
 

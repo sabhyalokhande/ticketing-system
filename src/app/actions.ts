@@ -64,6 +64,9 @@ const paymentSchema = z.object({
   transactionDetails: z.string().trim().min(3, "Paste your transaction/UTR details").max(500),
 });
 
+const MAX_SCREENSHOT_BYTES = 6 * 1024 * 1024; // 6MB
+const ALLOWED_SCREENSHOT_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+
 export async function submitPayment(formData: FormData) {
   await expireStaleBookings();
 
@@ -73,14 +76,38 @@ export async function submitPayment(formData: FormData) {
     transactionDetails: formData.get("transactionDetails"),
   });
 
+  const ref = String(formData.get("ref") ?? "");
+  const mobile = String(formData.get("mobile") ?? "");
+
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message ?? "Invalid submission";
-    const ref = String(formData.get("ref") ?? "");
-    const mobile = String(formData.get("mobile") ?? "");
     redirect(`/status?ref=${ref}&mobile=${mobile}&error=${encodeURIComponent(message)}`);
   }
 
-  const { ref, mobile, transactionDetails } = parsed.data;
+  // Optional payment screenshot.
+  let screenshotBytes: Uint8Array<ArrayBuffer> | null = null;
+  let screenshotType: string | null = null;
+  const screenshot = formData.get("screenshot");
+  if (screenshot instanceof File && screenshot.size > 0) {
+    if (!ALLOWED_SCREENSHOT_TYPES.includes(screenshot.type)) {
+      redirect(
+        `/status?ref=${ref}&mobile=${mobile}&error=${encodeURIComponent(
+          "Screenshot must be an image (JPEG, PNG, WEBP, or HEIC)."
+        )}`
+      );
+    }
+    if (screenshot.size > MAX_SCREENSHOT_BYTES) {
+      redirect(
+        `/status?ref=${ref}&mobile=${mobile}&error=${encodeURIComponent(
+          "Screenshot is too large - please keep it under 6MB."
+        )}`
+      );
+    }
+    screenshotBytes = new Uint8Array(await screenshot.arrayBuffer());
+    screenshotType = screenshot.type;
+  }
+
+  const { transactionDetails } = parsed.data;
 
   const booking = await prisma.booking.findFirst({ where: { ref, mobile } });
   if (!booking || booking.status !== "ALLOCATED") {
@@ -97,6 +124,10 @@ export async function submitPayment(formData: FormData) {
       status: "PAYMENT_SUBMITTED",
       transactionDetails,
       paymentSubmittedAt: new Date(),
+      ...(screenshotBytes && {
+        paymentScreenshot: screenshotBytes,
+        paymentScreenshotType: screenshotType,
+      }),
     },
   });
 
