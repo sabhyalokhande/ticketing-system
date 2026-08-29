@@ -5,9 +5,6 @@ import { useState } from "react";
 type Props = {
   bookingRef: string;
   mobile: string;
-  name: string;
-  quantity: number;
-  categoryName: string;
   amountDue: number;
   deadlineText?: string;
 };
@@ -19,8 +16,8 @@ function buildLink(ref: string, mobile: string) {
 
 function buildMessage(props: Props) {
   const link = buildLink(props.bookingRef, props.mobile);
-  const deadline = props.deadlineText ? ` by ${props.deadlineText}` : " within 24 hours";
-  return `Hi ${props.name}! Your ${props.quantity} ticket(s) (${props.categoryName}) for "Aamchya Pidhichi Goshtach Vegali" are blocked. Please pay ₹${props.amountDue} and submit your payment details here${deadline}: ${link}`;
+  const deadline = props.deadlineText ? `latest by ${props.deadlineText}` : "within 24 hours";
+  return `Please pay ₹${props.amountDue} and submit your payment details here ${deadline}: ${link}`;
 }
 
 async function copy(text: string) {

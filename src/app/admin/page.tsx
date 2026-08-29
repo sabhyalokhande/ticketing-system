@@ -206,11 +206,8 @@ export default async function AdminPage({
                 <ShareLinkButtons
                   bookingRef={b.ref}
                   mobile={b.mobile}
-                  name={b.name}
-                  quantity={b.quantity}
-                  categoryName={b.category.name}
                   amountDue={b.amountDue ?? 0}
-                  deadlineText={b.expiresAt?.toLocaleString()}
+                  deadlineText={b.expiresAt?.toLocaleDateString()}
                 />
               </div>
             ))}
