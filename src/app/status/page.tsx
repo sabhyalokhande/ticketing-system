@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { expireStaleBookings } from "@/lib/expiry";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
-import { SubmittedPopup } from "@/components/SubmittedPopup";
 import { submitPayment } from "../actions";
 
 export default async function StatusPage({
@@ -101,15 +100,19 @@ export default async function StatusPage({
       </header>
 
       {justSubmitted === "1" && (
-        <>
-          <SubmittedPopup />
-          <div className="rounded-lg border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
-            Request submitted! Save this reference:{" "}
+        <div className="rounded-lg border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
+          <p className="font-semibold">Thanks for Booking your tickets!</p>
+          <p className="mt-1">
+            You&apos;ll get your allocated seats and payment link within 2 working days on your
+            WhatsApp number.
+          </p>
+          <p className="mt-2">
+            Save this reference:{" "}
             <span className="font-mono font-semibold">{booking.ref}</span>. Bookmark this page or
             revisit <span className="font-mono">/status</span> with your ref + mobile to check
             progress.
-          </div>
-        </>
+          </p>
+        </div>
       )}
 
       {error && (
