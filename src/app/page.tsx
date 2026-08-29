@@ -49,6 +49,18 @@ export default async function HomePage({
             Watch trailer on YouTube
           </a>
         </div>
+
+        <div className="card grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
+          <span className="text-black/50 dark:text-white/50">Date</span>
+          <span>Sunday, 25 October 2026</span>
+          <span className="text-black/50 dark:text-white/50">Show time</span>
+          <span>4:00 PM</span>
+          <span className="text-black/50 dark:text-white/50">Venue</span>
+          <span>
+            Kalidasa Natyamandir, Purushottam Kheraj Road, Near Panch Rasta, Mulund (West),
+            Mumbai 400080
+          </span>
+        </div>
       </div>
 
       {/* Form - right column on desktop, below on mobile */}
