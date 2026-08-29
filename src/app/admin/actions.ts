@@ -187,11 +187,17 @@ export async function addRegion(formData: FormData) {
   const parsed = addRegionSchema.safeParse({ name: formData.get("name") });
   if (!parsed.success) return withNotice(parsed.error.issues[0]?.message ?? "Invalid region", false);
 
-  try {
-    await prisma.region.create({ data: { name: parsed.data.name } });
-  } catch {
-    return withNotice(`Region "${parsed.data.name}" already exists`, false);
+  const existing = await prisma.region.findUnique({ where: { name: parsed.data.name } });
+  if (existing) {
+    if (existing.active) {
+      return withNotice(`Region "${parsed.data.name}" already exists`, false);
+    }
+    // Name matches a previously-retired region - bring it back rather than
+    // fail on the unique constraint.
+    await prisma.region.update({ where: { id: existing.id }, data: { active: true } });
+    return withNotice(`Re-activated region ${parsed.data.name}`);
   }
+  await prisma.region.create({ data: { name: parsed.data.name } });
   return withNotice(`Added region ${parsed.data.name}`);
 }
 
@@ -199,7 +205,10 @@ export async function deleteRegion(regionId: string) {
   await requireAdmin();
   const inUse = await prisma.booking.count({ where: { regionId } });
   if (inUse > 0) {
-    return withNotice("Can't delete a region that already has bookings against it", false);
+    // Can't hard-delete without breaking those bookings' foreign key -
+    // retire it instead so it just disappears from future pickers.
+    await prisma.region.update({ where: { id: regionId }, data: { active: false } });
+    return withNotice("Region has existing bookings, so it was retired (hidden) rather than deleted");
   }
   await prisma.region.delete({ where: { id: regionId } });
   return withNotice("Region removed");

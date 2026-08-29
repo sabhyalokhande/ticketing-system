@@ -33,7 +33,7 @@ export default async function AdminPage({
   const [categories, regions, pending, allocated, paymentSubmitted, history, seatTotals, seatAvailable] =
     await Promise.all([
       prisma.category.findMany({ orderBy: { price: "desc" } }),
-      prisma.region.findMany({ orderBy: { name: "asc" } }),
+      prisma.region.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
       prisma.booking.findMany({
         where: { status: "PENDING" },
         include: { category: true, region: true },

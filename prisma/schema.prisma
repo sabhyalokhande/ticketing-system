@@ -15,7 +15,7 @@ datasource db {
 
 model Category {
   id        String   @id @default(cuid())
-  name      String   @unique // "Class A" | "Class B" | "Class C"
+  name      String   @unique // e.g. "Main Auditorium" | "Balcony"
   price     Int // price per ticket, in rupees
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -43,6 +43,11 @@ model Seat {
 model Region {
   id        String   @id @default(cuid())
   name      String   @unique
+  // Soft-delete flag: a region with real bookings against it can't be hard
+  // deleted (would break those bookings' foreign key), so retiring a region
+  // sets this false instead - it disappears from pickers but stays valid
+  // for the historical bookings that reference it.
+  active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
   bookings Booking[]

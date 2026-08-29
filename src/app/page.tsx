@@ -14,7 +14,7 @@ export default async function HomePage({
 
   const [categories, regions] = await Promise.all([
     prisma.category.findMany({ orderBy: { price: "desc" } }),
-    prisma.region.findMany({ orderBy: { name: "asc" } }),
+    prisma.region.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
   ]);
 
   return (
@@ -123,15 +123,13 @@ export default async function HomePage({
             </Field>
 
             <Field label="Number of tickets">
-              <input
-                name="quantity"
-                type="number"
-                required
-                min={1}
-                max={10}
-                defaultValue={1}
-                className="input"
-              />
+              <select name="quantity" required className="input" defaultValue="1">
+                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
             </Field>
 
             <button type="submit" className="btn-primary mt-2">

@@ -8,10 +8,12 @@ function seatPrefix(categoryName: string): string {
 }
 
 async function main() {
+  // Mahakavi Kalidas Natya Mandir seating - see the venue's seating chart.
+  // TODO: seat counts here are placeholders pending final confirmed numbers
+  // (chart shows 712 main / 60 balcony; adjust once confirmed).
   const categories = [
-    { name: "Class A", price: 500, seatCount: 100 },
-    { name: "Class B", price: 300, seatCount: 150 },
-    { name: "Class C", price: 150, seatCount: 200 },
+    { name: "Main Auditorium", price: 1500, seatCount: 100 },
+    { name: "Balcony", price: 800, seatCount: 150 },
   ];
 
   for (const c of categories) {
@@ -33,7 +35,16 @@ async function main() {
     }
   }
 
-  const regions = ["North", "South", "East", "West"];
+  const regions = [
+    "Western (Virar to Churchgate)",
+    "Dombivli, Kalyan, Khopoli",
+    "Bhandup to Dadar incl Chembur",
+    "New Mumbai (Airoli to Panvel)",
+    "Kalwa",
+    "Mulund",
+    "Thane",
+    "Others",
+  ];
   for (const name of regions) {
     await prisma.region.upsert({
       where: { name },
