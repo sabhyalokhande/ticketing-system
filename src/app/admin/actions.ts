@@ -122,6 +122,20 @@ export async function rejectBooking(formData: FormData) {
   return withNotice(`Rejected ${booking.ref}`);
 }
 
+/** Permanently deletes a booking (any status), freeing any seats it held. */
+export async function deleteBooking(bookingId: string) {
+  await requireAdmin();
+
+  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  if (!booking) return withNotice("Booking not found", false);
+
+  await prisma.$transaction([
+    prisma.seat.updateMany({ where: { bookingId: booking.id }, data: { bookingId: null } }),
+    prisma.booking.delete({ where: { id: booking.id } }),
+  ]);
+  return withNotice(`Deleted ${booking.ref}`);
+}
+
 export async function confirmPayment(bookingId: string) {
   await requireAdmin();
 

@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/auth";
 import { expireStaleBookings } from "@/lib/expiry";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ShareLinkButtons } from "@/components/ShareLinkButtons";
+import { DeleteBookingButton } from "@/components/DeleteBookingButton";
 import {
   adminLogout,
   rejectBooking,
@@ -176,6 +177,7 @@ export default async function AdminPage({
                     Allocate
                   </Link>
                   <RejectForm bookingId={b.id} />
+                  <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                 </div>
               </div>
             ))}
@@ -199,8 +201,9 @@ export default async function AdminPage({
                       due by {b.expiresAt.toLocaleString()}
                     </span>
                   )}
-                  <div className="ml-auto">
+                  <div className="ml-auto flex gap-2">
                     <RejectForm bookingId={b.id} />
+                    <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                   </div>
                 </div>
                 <ShareLinkButtons
@@ -251,6 +254,7 @@ export default async function AdminPage({
                     </button>
                   </form>
                   <RejectForm bookingId={b.id} />
+                  <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                 </div>
               </div>
             ))}
@@ -273,6 +277,9 @@ export default async function AdminPage({
                 {b.rejectionReason && (
                   <span className="text-black/50 dark:text-white/50">({b.rejectionReason})</span>
                 )}
+                <div className="ml-auto">
+                  <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
+                </div>
               </div>
             ))}
           </div>
