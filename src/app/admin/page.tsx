@@ -31,7 +31,7 @@ export default async function AdminPage({
 
   await expireStaleBookings();
 
-  const [categories, regions, pending, allocated, paymentSubmitted, history, seatTotals, seatAvailable] =
+  const [categories, regions, pending, allocated, paymentSubmitted, history, seatTotals, seatAvailable, allSeats] =
     await Promise.all([
       prisma.category.findMany({ orderBy: { price: "desc" } }),
       prisma.region.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
@@ -60,10 +60,19 @@ export default async function AdminPage({
       }),
       prisma.seat.groupBy({ by: ["categoryId"], _count: { _all: true } }),
       prisma.seat.groupBy({ by: ["categoryId"], where: { bookingId: null }, _count: { _all: true } }),
+      prisma.seat.findMany({
+        select: { id: true, label: true, categoryId: true, booking: { select: { ref: true } } },
+        orderBy: { label: "asc" },
+      }),
     ]);
 
   const totalMap = new Map(seatTotals.map((s) => [s.categoryId, s._count._all]));
   const availableMap = new Map(seatAvailable.map((s) => [s.categoryId, s._count._all]));
+  const seatsByCategory = new Map<string, typeof allSeats>();
+  for (const s of allSeats) {
+    if (!seatsByCategory.has(s.categoryId)) seatsByCategory.set(s.categoryId, []);
+    seatsByCategory.get(s.categoryId)!.push(s);
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-8">
@@ -134,6 +143,35 @@ export default async function AdminPage({
                     Add
                   </button>
                 </form>
+
+                <details className="group">
+                  <summary className="cursor-pointer text-xs font-medium text-black/50 hover:text-black/80 dark:text-white/50 dark:hover:text-white/80">
+                    View auditorium seat map
+                  </summary>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-black/60 dark:text-white/60">
+                    <Legend swatch="border border-black/20 dark:border-white/30" label="Available" />
+                    <Legend swatch="bg-black/10 dark:bg-white/10" label="Taken" />
+                  </div>
+                  <div
+                    className="mt-2 grid max-h-96 gap-1 overflow-y-auto"
+                    style={{ gridTemplateColumns: "repeat(auto-fill, minmax(2.75rem, 1fr))" }}
+                  >
+                    {(seatsByCategory.get(c.id) ?? []).map((s) => (
+                      <span
+                        key={s.id}
+                        title={s.booking ? `${s.label} — ${s.booking.ref}` : `${s.label} — available`}
+                        className={[
+                          "rounded px-1 py-1.5 text-center font-mono text-[10px]",
+                          s.booking
+                            ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/40"
+                            : "border border-black/20 dark:border-white/30",
+                        ].join(" ")}
+                      >
+                        {s.label}
+                      </span>
+                    ))}
+                  </div>
+                </details>
               </div>
             );
           })}
@@ -311,6 +349,15 @@ function Section({
 
 function Empty({ text }: { text: string }) {
   return <p className="text-sm text-black/50 dark:text-white/50">{text}</p>;
+}
+
+function Legend({ swatch, label }: { swatch: string; label: string }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className={`h-3 w-3 rounded ${swatch}`} />
+      {label}
+    </span>
+  );
 }
 
 function RejectForm({ bookingId }: { bookingId: string }) {
