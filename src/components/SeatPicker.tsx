@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { allocateBookingWithSeats } from "@/app/admin/actions";
 
 type Seat = { id: string; label: string; available: boolean };
@@ -26,11 +26,6 @@ function groupByRow(seats: Seat[]): { row: string; seats: Seat[] }[] {
   return order.map((row) => ({ row, seats: byRow.get(row)! }));
 }
 
-const ROW_PX = 28; // seat button height (h-7)
-const GAP_PX = 6; // gap-1.5 between rows
-const BUTTON_PX = 32; // seat button width + its gap
-const LABEL_PX = 40; // row-label column
-
 export function SeatPicker({
   bookingId,
   quantity,
@@ -43,9 +38,6 @@ export function SeatPicker({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [scale, setScale] = useState(1);
-  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const availableCount = useMemo(() => seats.filter((s) => s.available).length, [seats]);
   // Row "A" (front of house) first in the data - reverse so it renders
@@ -56,38 +48,10 @@ export function SeatPicker({
   // Every row centers within one shared width (the widest row's), so rows
   // of different lengths align on a common axis instead of each drifting
   // to its own center.
+  const BUTTON_PX = 32; // seat button + its gap
+  const LABEL_PX = 32;
   const maxRowSeats = Math.max(1, ...rows.map((r) => r.seats.length));
-  const naturalWidthPx = Math.ceil(LABEL_PX + maxRowSeats * BUTTON_PX + 24);
-  const naturalHeightPx = rows.length * (ROW_PX + GAP_PX) + 40; // + STAGE bar
-
-  // Auto-shrink (never grow) so the whole auditorium fits without needing
-  // to scroll - recalculated on resize and on entering/leaving full screen.
-  useEffect(() => {
-    function recompute() {
-      const available = wrapperRef.current?.clientWidth;
-      if (!available) return;
-      setScale(Math.min(1, Math.max(0.32, (available - 16) / naturalWidthPx)));
-    }
-    recompute();
-    window.addEventListener("resize", recompute);
-    return () => window.removeEventListener("resize", recompute);
-  }, [naturalWidthPx, isFullscreen]);
-
-  useEffect(() => {
-    function onChange() {
-      setIsFullscreen(!!document.fullscreenElement);
-    }
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  async function toggleFullscreen() {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    } else {
-      await wrapperRef.current?.requestFullscreen();
-    }
-  }
+  const rowsWidthPx = Math.ceil(LABEL_PX + maxRowSeats * BUTTON_PX + 24);
 
   function toggle(seat: Seat) {
     if (!seat.available || isPending) return;
@@ -140,61 +104,34 @@ export function SeatPicker({
   }
 
   return (
-    // The fullscreen target: everything the coordinator needs (legend,
-    // toggle, seats, confirm bar) lives inside this element, because the
-    // Fullscreen API only renders the fullscreened element's own subtree -
-    // a control placed outside it would become invisible/unclickable the
-    // moment fullscreen engages.
-    <div
-      ref={wrapperRef}
-      className={[
-        "flex flex-col gap-4",
-        isFullscreen ? "h-screen justify-center overflow-y-auto bg-white p-6 dark:bg-black" : "",
-      ].join(" ")}
-    >
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4 text-xs text-black/60 dark:text-white/60">
         <Legend swatch="border border-black/20 dark:border-white/30" label="Available" />
         <Legend swatch="bg-black dark:bg-white" label="Selected" />
         <Legend swatch="bg-black/10 dark:bg-white/10" label="Taken" />
-        <span>{availableCount} available</span>
-        <button type="button" onClick={toggleFullscreen} className="btn-secondary ml-auto text-xs">
-          {isFullscreen ? "Exit full screen" : "Full screen"}
-        </button>
+        <span className="ml-auto">{availableCount} available</span>
       </div>
 
-      <div className="flex justify-center overflow-x-auto rounded-lg border border-black/10 p-4 dark:border-white/15">
+      <div className="flex rounded-lg border border-black/10 p-4 dark:border-white/15">
         {/* Row labels - a separate, non-scrolling column so they never get
-            hidden or overlapped by seats scrolling underneath. Wrapped the
-            same way as the seat area below: an outer box sized to the
-            scaled footprint, with the natural-size content scaled inside
-            it, so the flex row's height reflects the scaled size, not the
-            unscaled one. */}
-        <div className="shrink-0 pr-2" style={{ width: LABEL_PX * scale, height: naturalHeightPx * scale }}>
-          <div
-            className="flex flex-col gap-1.5"
-            style={{ width: LABEL_PX, transform: `scale(${scale})`, transformOrigin: "top left" }}
-          >
-            {rows.map((r) => (
-              <div
-                key={r.row}
-                className="flex h-7 w-6 items-center justify-end font-mono text-[10px] text-black/40 dark:text-white/40"
-              >
-                {r.row}
-              </div>
-            ))}
-            <div className="h-7" /> {/* aligns with the STAGE bar below */}
-          </div>
+            hidden or overlapped by seats scrolling underneath. */}
+        <div className="flex shrink-0 flex-col gap-1.5 pr-2">
+          {rows.map((r) => (
+            <div
+              key={r.row}
+              className="flex h-7 w-6 items-center justify-end font-mono text-[10px] text-black/40 dark:text-white/40"
+            >
+              {r.row}
+            </div>
+          ))}
+          <div className="h-7" /> {/* aligns with the STAGE bar below */}
         </div>
 
-        {/* Seats - shrunk to fit the available width so the whole auditorium
-            is visible at once; still scrollable as a fallback. Rows share
-            one fixed natural width so they all center on the same axis,
-            matching the real fan/curve shape of the auditorium. */}
-        <div style={{ width: naturalWidthPx * scale, height: naturalHeightPx * scale }}>
-          <div
-            className="flex flex-col gap-1.5"
-            style={{ width: naturalWidthPx, transform: `scale(${scale})`, transformOrigin: "top left" }}
-          >
+        {/* Seats - scrolls horizontally on its own; rows share one fixed
+            width so they all center on the same axis, matching the real
+            fan/curve shape of the auditorium. */}
+        <div className="overflow-x-auto">
+          <div className="mx-auto flex flex-col gap-1.5" style={{ width: rowsWidthPx }}>
             {rows.map((r) => (
               <div key={r.row} className="flex h-7 items-center justify-center gap-1">
                 {r.seats.map(seatButton)}
@@ -214,12 +151,7 @@ export function SeatPicker({
         </div>
       )}
 
-      <div
-        className={[
-          "flex items-center gap-3 rounded-lg border border-black/10 bg-white/90 px-4 py-3 backdrop-blur dark:border-white/15 dark:bg-black/80",
-          isFullscreen ? "" : "sticky bottom-4",
-        ].join(" ")}
-      >
+      <div className="sticky bottom-4 flex items-center gap-3 rounded-lg border border-black/10 bg-white/90 px-4 py-3 backdrop-blur dark:border-white/15 dark:bg-black/80">
         <span className="text-sm font-medium">
           Selected {selected.size} / {quantity}
         </span>
