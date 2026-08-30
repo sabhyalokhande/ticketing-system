@@ -2,7 +2,54 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function seedCategory(name: string, price: number, seatCount: number) {
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+// Real per-row seat counts for Mahakavi Kalidas Natya Mandir, from the
+// venue's official row/seat count sheet.
+const MAIN_AUDITORIUM_ROWS: Record<string, number> = {
+  A: 20,
+  B: 35,
+  C: 39,
+  D: 42,
+  E: 45,
+  F: 48,
+  G: 51,
+  H: 56,
+  I: 60,
+  J: 62,
+  K: 64,
+  L: 68,
+  M: 68,
+  N: 32,
+  O: 22,
+}; // 712 total
+
+const BALCONY_ROWS: Record<string, number> = {
+  A: 4,
+  B: 10,
+  C: 50,
+  D: 68,
+  E: 72,
+  F: 73,
+  G: 76,
+  H: 78,
+  I: 91,
+  J: 39,
+  K: 20,
+  L: 20,
+}; // 601 total
+
+function buildRowWiseLabels(rows: Record<string, number>): string[] {
+  const labels: string[] = [];
+  for (const [row, count] of Object.entries(rows)) {
+    for (let n = 1; n <= count; n++) labels.push(`${row}-${pad(n)}`);
+  }
+  return labels;
+}
+
+async function seedCategory(name: string, price: number, rows: Record<string, number>) {
   const category = await prisma.category.upsert({
     where: { name },
     update: {},
@@ -11,19 +58,14 @@ async function seedCategory(name: string, price: number, seatCount: number) {
   const existing = await prisma.seat.count({ where: { categoryId: category.id } });
   if (existing === 0) {
     await prisma.seat.createMany({
-      data: Array.from({ length: seatCount }, (_, i) => ({
-        categoryId: category.id,
-        label: String(i + 1).padStart(3, "0"),
-      })),
+      data: buildRowWiseLabels(rows).map((label) => ({ categoryId: category.id, label })),
     });
   }
 }
 
 async function main() {
-  // Mahakavi Kalidas Natya Mandir - seats numbered serially per section
-  // rather than matching the physical chart's row layout.
-  await seedCategory("Main Auditorium", 1500, 657);
-  await seedCategory("Balcony", 800, 601);
+  await seedCategory("Main Auditorium", 1500, MAIN_AUDITORIUM_ROWS);
+  await seedCategory("Balcony", 800, BALCONY_ROWS);
 
   const regions = [
     "Western (Virar to Churchgate)",
@@ -43,7 +85,7 @@ async function main() {
     });
   }
 
-  console.log("Seeded categories, seats, and regions.");
+  console.log("Seeded categories, row-wise seats, and regions.");
 }
 
 main()

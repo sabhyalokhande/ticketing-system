@@ -5,6 +5,27 @@ import { allocateBookingWithSeats } from "@/app/admin/actions";
 
 type Seat = { id: string; label: string; available: boolean };
 
+// A seat label is "<row>-<seatNumber>", e.g. "G-51" (row "G", seat 51).
+function rowOf(label: string): string {
+  const i = label.lastIndexOf("-");
+  return i === -1 ? label : label.slice(0, i);
+}
+
+/** Groups a flat, label-sorted seat list into one entry per row, in the order rows first appear. */
+function groupByRow(seats: Seat[]): { row: string; seats: Seat[] }[] {
+  const byRow = new Map<string, Seat[]>();
+  const order: string[] = [];
+  for (const seat of seats) {
+    const row = rowOf(seat.label);
+    if (!byRow.has(row)) {
+      byRow.set(row, []);
+      order.push(row);
+    }
+    byRow.get(row)!.push(seat);
+  }
+  return order.map((row) => ({ row, seats: byRow.get(row)! }));
+}
+
 export function SeatPicker({
   bookingId,
   quantity,
@@ -19,7 +40,18 @@ export function SeatPicker({
   const [isPending, startTransition] = useTransition();
 
   const availableCount = useMemo(() => seats.filter((s) => s.available).length, [seats]);
+  // Row "A" (front of house) first in the data - reverse so it renders
+  // closest to the STAGE label at the bottom, like the real venue.
+  const rows = useMemo(() => groupByRow(seats).reverse(), [seats]);
   const full = selected.size >= quantity;
+
+  // Every row centers within one shared width (the widest row's), so rows
+  // of different lengths align on a common axis instead of each drifting
+  // to its own center.
+  const BUTTON_PX = 32; // seat button + its gap
+  const LABEL_PX = 32;
+  const maxRowSeats = Math.max(1, ...rows.map((r) => r.seats.length));
+  const rowsWidthPx = Math.ceil(LABEL_PX + maxRowSeats * BUTTON_PX + 24);
 
   function toggle(seat: Seat) {
     if (!seat.available || isPending) return;
@@ -45,6 +77,32 @@ export function SeatPicker({
     });
   }
 
+  function seatButton(seat: Seat) {
+    const isSelected = selected.has(seat.id);
+    const num = seat.label.slice(seat.label.lastIndexOf("-") + 1);
+    return (
+      <button
+        key={seat.id}
+        type="button"
+        disabled={!seat.available || (!isSelected && full)}
+        onClick={() => toggle(seat)}
+        title={seat.available ? seat.label : `${seat.label} - already taken`}
+        className={[
+          "h-7 w-7 shrink-0 rounded text-[10px] font-mono transition-colors",
+          !seat.available
+            ? "cursor-not-allowed bg-black/10 text-black/30 dark:bg-white/10 dark:text-white/30"
+            : isSelected
+              ? "bg-black text-white dark:bg-white dark:text-black"
+              : full
+                ? "cursor-not-allowed border border-black/20 text-black/40 dark:border-white/20 dark:text-white/40"
+                : "border border-black/20 hover:border-black/50 dark:border-white/30 dark:hover:border-white/60",
+        ].join(" ")}
+      >
+        {num}
+      </button>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4 text-xs text-black/60 dark:text-white/60">
@@ -54,34 +112,37 @@ export function SeatPicker({
         <span className="ml-auto">{availableCount} available</span>
       </div>
 
-      <div
-        className="grid gap-2 rounded-lg border border-black/10 p-4 dark:border-white/15"
-        style={{ gridTemplateColumns: "repeat(auto-fill, minmax(3.5rem, 1fr))" }}
-      >
-        {seats.map((seat) => {
-          const isSelected = selected.has(seat.id);
-          return (
-            <button
-              key={seat.id}
-              type="button"
-              disabled={!seat.available || (!isSelected && full)}
-              onClick={() => toggle(seat)}
-              title={seat.available ? seat.label : `${seat.label} - already taken`}
-              className={[
-                "rounded-md px-2 py-2 text-xs font-mono transition-colors",
-                !seat.available
-                  ? "cursor-not-allowed bg-black/10 text-black/30 dark:bg-white/10 dark:text-white/30"
-                  : isSelected
-                    ? "bg-black text-white dark:bg-white dark:text-black"
-                    : full
-                      ? "cursor-not-allowed border border-black/20 text-black/40 dark:border-white/20 dark:text-white/40"
-                      : "border border-black/20 hover:border-black/50 dark:border-white/30 dark:hover:border-white/60",
-              ].join(" ")}
+      <div className="flex rounded-lg border border-black/10 p-4 dark:border-white/15">
+        {/* Row labels - a separate, non-scrolling column so they never get
+            hidden or overlapped by seats scrolling underneath. */}
+        <div className="flex shrink-0 flex-col gap-1.5 pr-2">
+          {rows.map((r) => (
+            <div
+              key={r.row}
+              className="flex h-7 w-6 items-center justify-end font-mono text-[10px] text-black/40 dark:text-white/40"
             >
-              {seat.label}
-            </button>
-          );
-        })}
+              {r.row}
+            </div>
+          ))}
+          <div className="h-7" /> {/* aligns with the STAGE bar below */}
+        </div>
+
+        {/* Seats - scrolls horizontally on its own; rows share one fixed
+            width so they all center on the same axis, matching the real
+            fan/curve shape of the auditorium. */}
+        <div className="overflow-x-auto">
+          <div className="mx-auto flex flex-col gap-1.5" style={{ width: rowsWidthPx }}>
+            {rows.map((r) => (
+              <div key={r.row} className="flex h-7 items-center justify-center gap-1">
+                {r.seats.map(seatButton)}
+              </div>
+            ))}
+
+            <div className="mt-3 rounded-md bg-black/5 py-1.5 text-center text-xs font-medium tracking-widest text-black/40 dark:bg-white/10 dark:text-white/40">
+              STAGE
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (

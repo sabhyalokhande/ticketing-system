@@ -152,23 +152,29 @@ export default async function AdminPage({
                     <Legend swatch="border border-black/20 dark:border-white/30" label="Available" />
                     <Legend swatch="bg-black/10 dark:bg-white/10" label="Taken" />
                   </div>
-                  <div
-                    className="mt-2 grid max-h-96 gap-1 overflow-y-auto"
-                    style={{ gridTemplateColumns: "repeat(auto-fill, minmax(2.75rem, 1fr))" }}
-                  >
-                    {(seatsByCategory.get(c.id) ?? []).map((s) => (
-                      <span
-                        key={s.id}
-                        title={s.booking ? `${s.label} — ${s.booking.ref}` : `${s.label} — available`}
-                        className={[
-                          "rounded px-1 py-1.5 text-center font-mono text-[10px]",
-                          s.booking
-                            ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/40"
-                            : "border border-black/20 dark:border-white/30",
-                        ].join(" ")}
-                      >
-                        {s.label}
-                      </span>
+                  <div className="mt-2 flex max-h-96 flex-col gap-1.5 overflow-y-auto">
+                    {groupSeatsByRow(seatsByCategory.get(c.id) ?? []).map(({ row, seats: rowSeats }) => (
+                      <div key={row} className="flex items-start gap-2">
+                        <span className="w-6 shrink-0 pt-1 text-right font-mono text-[10px] text-black/40 dark:text-white/40">
+                          {row}
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {rowSeats.map((s) => (
+                            <span
+                              key={s.id}
+                              title={s.booking ? `${s.label} — ${s.booking.ref}` : `${s.label} — available`}
+                              className={[
+                                "rounded px-1 py-1.5 text-center font-mono text-[10px]",
+                                s.booking
+                                  ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/40"
+                                  : "border border-black/20 dark:border-white/30",
+                              ].join(" ")}
+                            >
+                              {s.label.slice(s.label.lastIndexOf("-") + 1)}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </details>
@@ -358,6 +364,22 @@ function Legend({ swatch, label }: { swatch: string; label: string }) {
       {label}
     </span>
   );
+}
+
+/** Groups a flat, label-sorted seat list ("A-01", "A-02", ...) into one entry per row letter. */
+function groupSeatsByRow<T extends { label: string }>(seats: T[]): { row: string; seats: T[] }[] {
+  const byRow = new Map<string, T[]>();
+  const order: string[] = [];
+  for (const seat of seats) {
+    const i = seat.label.lastIndexOf("-");
+    const row = i === -1 ? seat.label : seat.label.slice(0, i);
+    if (!byRow.has(row)) {
+      byRow.set(row, []);
+      order.push(row);
+    }
+    byRow.get(row)!.push(seat);
+  }
+  return order.map((row) => ({ row, seats: byRow.get(row)! }));
 }
 
 function RejectForm({ bookingId }: { bookingId: string }) {
