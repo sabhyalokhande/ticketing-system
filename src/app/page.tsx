@@ -130,7 +130,7 @@ export default async function HomePage({
             </Field>
 
             <button type="submit" className="btn-primary mt-2">
-              Submit request
+              Confirm booking
             </button>
 
             <p className="text-xs text-black/50 dark:text-white/50">
