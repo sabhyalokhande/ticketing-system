@@ -314,17 +314,27 @@ export default async function AdminPage({
         ) : (
           <div className="flex flex-col gap-2">
             {history.map((b) => (
-              <div key={b.id} className="card flex flex-wrap items-center gap-3 text-sm">
-                <BookingSummary booking={b} />
-                {b.amountDue != null && (
-                  <span className="text-black/50 dark:text-white/50">₹{b.amountDue}</span>
-                )}
-                {b.rejectionReason && (
-                  <span className="text-black/50 dark:text-white/50">({b.rejectionReason})</span>
-                )}
-                <div className="ml-auto">
-                  <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
+              <div key={b.id} className="card flex flex-col gap-3 text-sm">
+                <div className="flex flex-wrap items-center gap-3">
+                  <BookingSummary booking={b} />
+                  {b.amountDue != null && (
+                    <span className="text-black/50 dark:text-white/50">₹{b.amountDue}</span>
+                  )}
+                  {b.rejectionReason && (
+                    <span className="text-black/50 dark:text-white/50">({b.rejectionReason})</span>
+                  )}
+                  <div className="ml-auto">
+                    <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
+                  </div>
                 </div>
+                {b.status === "CONFIRMED" && (
+                  <ShareLinkButtons
+                    bookingRef={b.ref}
+                    mobile={b.mobile}
+                    amountDue={b.amountDue ?? 0}
+                    variant="ticket"
+                  />
+                )}
               </div>
             ))}
           </div>

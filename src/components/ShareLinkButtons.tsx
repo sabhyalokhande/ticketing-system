@@ -7,6 +7,8 @@ type Props = {
   mobile: string;
   amountDue: number;
   deadlineText?: string;
+  /** "payment" (default): payment-reminder message. "ticket": ready-ticket message. */
+  variant?: "payment" | "ticket";
 };
 
 function buildLink(ref: string, mobile: string) {
@@ -16,6 +18,9 @@ function buildLink(ref: string, mobile: string) {
 
 function buildMessage(props: Props) {
   const link = buildLink(props.bookingRef, props.mobile);
+  if (props.variant === "ticket") {
+    return `Your tickets are confirmed! View/download your ticket here: ${link}`;
+  }
   const deadline = props.deadlineText ? `latest by ${props.deadlineText}` : "within 24 hours";
   return `Please pay ₹${props.amountDue} and submit your payment details here ${deadline}: ${link}\n\nIn case of failure to make payment, the allocated tickets will be cancelled and the allocated seats will be free for other bookings.`;
 }
@@ -63,7 +68,7 @@ export function ShareLinkButtons(props: Props) {
         onClick={onWhatsApp}
         className="btn-secondary text-xs text-green-700 dark:text-green-400"
       >
-        Send on WhatsApp
+        {props.variant === "ticket" ? "Send ticket on WhatsApp" : "Send on WhatsApp"}
       </button>
     </div>
   );

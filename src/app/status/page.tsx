@@ -237,9 +237,20 @@ export default async function StatusPage({
       )}
 
       {booking.status === "CONFIRMED" && (
-        <div className="card text-sm">
-          Payment verified &mdash; your {booking.quantity} ticket(s) are confirmed. Keep this
-          reference ({booking.ref}) handy.
+        <div className="card flex flex-col gap-3 text-sm">
+          <p>
+            Payment verified &mdash; your {booking.quantity} ticket(s) are confirmed. Keep this
+            reference ({booking.ref}) handy.
+          </p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/bookings/${booking.id}/ticket`}
+            alt="Your ticket"
+            className="w-full rounded-lg border border-black/10 dark:border-white/15"
+          />
+          <p className="text-xs text-black/50 dark:text-white/50">
+            Save this image or take a screenshot &mdash; show it at entry.
+          </p>
         </div>
       )}
 
