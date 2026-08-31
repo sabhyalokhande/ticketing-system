@@ -87,7 +87,7 @@ export default async function HomePage({
 
         {categories.length === 0 || regions.length === 0 ? (
           <p className="text-sm text-black/60 dark:text-white/60">
-            The portal isn&apos;t configured yet &mdash; no categories or regions found.
+            The portal isn&apos;t configured yet &mdash; no categories or residence areas found.
           </p>
         ) : (
           <form action={createBooking} className="flex flex-col gap-4">
@@ -128,10 +128,10 @@ export default async function HomePage({
               </select>
             </Field>
 
-            <Field label="Region">
+            <Field label="Residence Area">
               <select name="regionId" required className="input" defaultValue="">
                 <option value="" disabled>
-                  Select a region
+                  Select your residence area
                 </option>
                 {regions.map((r) => (
                   <option key={r.id} value={r.id}>

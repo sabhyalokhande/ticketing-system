@@ -185,14 +185,14 @@ export default async function AdminPage({
       </Section>
 
       {/* Regions */}
-      <Section title="Regions">
+      <Section title="Residence Areas">
         <div className="flex flex-wrap gap-2">
           {regions.map((r) => (
             <form key={r.id} action={deleteRegion.bind(null, r.id)}>
               <button
                 type="submit"
                 className="badge border border-black/15 hover:bg-red-50 hover:text-red-700 dark:border-white/20 dark:hover:bg-red-950 dark:hover:text-red-300"
-                title="Remove region"
+                title="Remove residence area"
               >
                 {r.name} &times;
               </button>
@@ -200,7 +200,7 @@ export default async function AdminPage({
           ))}
         </div>
         <form action={addRegion} className="mt-3 flex gap-2">
-          <input name="name" placeholder="New region name" className="input" />
+          <input name="name" placeholder="New residence area name" className="input" />
           <button type="submit" className="btn-secondary">
             Add
           </button>

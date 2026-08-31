@@ -126,7 +126,7 @@ export default async function StatusPage({
         <span>{booking.name}</span>
         <span className="text-black/50 dark:text-white/50">Category</span>
         <span>{booking.category.name}</span>
-        <span className="text-black/50 dark:text-white/50">Region</span>
+        <span className="text-black/50 dark:text-white/50">Residence Area</span>
         <span>{booking.region.name}</span>
         <span className="text-black/50 dark:text-white/50">Tickets</span>
         <span>{booking.quantity}</span>
