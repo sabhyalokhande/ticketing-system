@@ -248,6 +248,13 @@ export default async function StatusPage({
             alt="Your ticket"
             className="w-full rounded-lg border border-black/10 dark:border-white/15"
           />
+          <a
+            href={`/api/bookings/${booking.id}/ticket`}
+            download={`${booking.ref}-ticket.png`}
+            className="btn-secondary text-center"
+          >
+            Download ticket
+          </a>
           <p className="text-xs text-black/50 dark:text-white/50">
             Save this image or take a screenshot &mdash; show it at entry.
           </p>
