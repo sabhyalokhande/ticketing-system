@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { config } from "@/lib/config";
 import { expireStaleBookings } from "@/lib/expiry";
+import { formatDateTimeIST } from "@/lib/date";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
 import { submitPayment } from "../actions";
@@ -161,7 +162,7 @@ export default async function StatusPage({
             </p>
             {booking.expiresAt && (
               <p className="text-sm text-red-600 dark:text-red-400">
-                Deadline: {booking.expiresAt.toLocaleString()}
+                Deadline: {formatDateTimeIST(booking.expiresAt)} IST
               </p>
             )}
           </div>

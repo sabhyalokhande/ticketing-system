@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { expireStaleBookings } from "@/lib/expiry";
+import { formatDateIST, formatDateTimeIST } from "@/lib/date";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ShareLinkButtons } from "@/components/ShareLinkButtons";
 import { DeleteBookingButton } from "@/components/DeleteBookingButton";
@@ -242,7 +243,7 @@ export default async function AdminPage({
                   <span className="text-black/50 dark:text-white/50">₹{b.amountDue}</span>
                   {b.expiresAt && (
                     <span className="text-red-600 dark:text-red-400">
-                      due by {b.expiresAt.toLocaleString()}
+                      due by {formatDateTimeIST(b.expiresAt)} IST
                     </span>
                   )}
                   <div className="ml-auto flex gap-2">
@@ -254,7 +255,7 @@ export default async function AdminPage({
                   bookingRef={b.ref}
                   mobile={b.mobile}
                   amountDue={b.amountDue ?? 0}
-                  deadlineText={b.expiresAt?.toLocaleDateString()}
+                  deadlineText={b.expiresAt ? formatDateIST(b.expiresAt) : undefined}
                 />
               </div>
             ))}
@@ -423,7 +424,7 @@ function BookingSummary({ booking: b }: { booking: BookingRow }) {
         </span>
       )}
       <span className="text-xs text-black/40 dark:text-white/40">
-        {b.createdAt.toLocaleString()}
+        {formatDateTimeIST(b.createdAt)} IST
       </span>
     </div>
   );
