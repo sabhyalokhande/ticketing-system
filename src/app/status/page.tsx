@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { config } from "@/lib/config";
 import { expireStaleBookings } from "@/lib/expiry";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -168,6 +169,22 @@ export default async function StatusPage({
           {qrDataUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={qrDataUrl} alt="UPI payment QR code" className="mx-auto h-64 w-64" />
+          )}
+
+          {config.bankName && (
+            <div className="rounded-lg bg-black/5 px-4 py-3 text-sm dark:bg-white/10">
+              <p className="mb-2 font-medium">Or pay by bank transfer</p>
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+                <span className="text-black/50 dark:text-white/50">Bank Name</span>
+                <span>{config.bankName}</span>
+                <span className="text-black/50 dark:text-white/50">Bank location</span>
+                <span>{config.bankLocation}</span>
+                <span className="text-black/50 dark:text-white/50">Bank A/c number</span>
+                <span className="font-mono">{config.bankAccountNumber}</span>
+                <span className="text-black/50 dark:text-white/50">IFSC code</span>
+                <span className="font-mono">{config.bankIfsc}</span>
+              </div>
+            </div>
           )}
 
           <form action={submitPayment} className="flex flex-col gap-3">

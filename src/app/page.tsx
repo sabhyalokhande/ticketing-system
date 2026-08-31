@@ -17,8 +17,8 @@ export default async function HomePage({
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-4 py-10 md:flex-row md:items-center md:justify-center">
-      {/* Poster + trailer - left column on desktop, below the form on mobile */}
-      <div className="order-2 flex flex-col gap-3 md:order-none md:sticky md:top-10 md:w-[280px] md:shrink-0">
+      {/* Poster + trailer - left column on desktop, on top on mobile */}
+      <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
         <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-lg border border-black/10 dark:border-white/15 md:mx-0 md:max-w-none">
           <Image
             src="/Drama-Image.jpeg"
@@ -40,10 +40,14 @@ export default async function HomePage({
             Mumbai 400080
           </span>
         </div>
+
+        <a href="#booking-form" className="btn-primary text-center md:hidden">
+          Book Tickets Now
+        </a>
       </div>
 
-      {/* Form - right column on desktop, on top on mobile */}
-      <div className="order-1 flex w-full min-w-0 max-w-lg flex-col gap-6 md:order-none">
+      {/* Form - right column on desktop, below the poster on mobile */}
+      <div id="booking-form" className="flex w-full min-w-0 max-w-lg scroll-mt-6 flex-col gap-6">
         <p className="text-sm text-black/60 dark:text-white/60">
           Fill this in to request tickets. Requests are handled strictly first-come,
           first-served basis.
