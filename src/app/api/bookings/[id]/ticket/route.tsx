@@ -19,9 +19,9 @@ function getPosterDataUri() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: "flex", width: "100%", padding: "6px 0" }}>
-      <div style={{ display: "flex", width: 140, color: "#92867a", fontSize: 18 }}>{label}</div>
-      <div style={{ display: "flex", flex: 1, color: "#2b241c", fontSize: 18, fontWeight: 600 }}>
+    <div style={{ display: "flex", width: "100%", padding: "8px 0" }}>
+      <div style={{ display: "flex", width: 196, color: "#92867a", fontSize: 25 }}>{label}</div>
+      <div style={{ display: "flex", flex: 1, color: "#2b241c", fontSize: 25, fontWeight: 600 }}>
         {value}
       </div>
     </div>
@@ -58,9 +58,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
         <img
           src={poster}
           alt="Play poster"
-          width={260}
-          height={460}
-          style={{ objectFit: "cover", borderRight: "4px dashed #d8cdbd" }}
+          width={364}
+          height={644}
+          style={{ objectFit: "cover", borderRight: "6px dashed #d8cdbd" }}
         />
 
         <div
@@ -68,7 +68,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: "28px 36px",
+            padding: "39px 50px",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -77,32 +77,32 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
                 display: "flex",
                 background: "#c2410c",
                 color: "#fff",
-                fontSize: 16,
+                fontSize: 22,
                 fontWeight: 700,
                 letterSpacing: 2,
-                padding: "6px 14px",
-                borderRadius: 6,
+                padding: "8px 20px",
+                borderRadius: 8,
               }}
             >
               TICKET
             </div>
-            <div style={{ display: "flex", fontSize: 18, color: "#92867a" }}>
+            <div style={{ display: "flex", fontSize: 25, color: "#92867a" }}>
               No. {booking.ref}
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", marginTop: 22, gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 31, gap: 14 }}>
             <div
               style={{
                 display: "flex",
-                fontSize: 26,
+                fontSize: 36,
                 fontWeight: 700,
                 color: "#2b241c",
               }}
             >
               Aamchya Pidhichi Goshtach Vegali
             </div>
-            <div style={{ display: "flex", fontSize: 16, color: "#92867a" }}>
+            <div style={{ display: "flex", fontSize: 22, color: "#92867a" }}>
               Konkan Maratha Melava 2026
             </div>
           </div>
@@ -111,9 +111,9 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             style={{
               display: "flex",
               width: "100%",
-              height: 2,
+              height: 3,
               background: "#e8ddcb",
-              margin: "18px 0",
+              margin: "25px 0",
             }}
           />
 
@@ -129,6 +129,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
         </div>
       </div>
     ),
-    { width: 1000, height: 460 }
+    { width: 1400, height: 644 }
   );
 }
