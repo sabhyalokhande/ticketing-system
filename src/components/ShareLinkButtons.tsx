@@ -17,7 +17,7 @@ function buildLink(ref: string, mobile: string) {
 function buildMessage(props: Props) {
   const link = buildLink(props.bookingRef, props.mobile);
   const deadline = props.deadlineText ? `latest by ${props.deadlineText}` : "within 24 hours";
-  return `Please pay ₹${props.amountDue} and submit your payment details here ${deadline}: ${link}`;
+  return `Please pay ₹${props.amountDue} and submit your payment details here ${deadline}: ${link}\n\nIn case of failure to make payment, the allocated tickets will be cancelled and the allocated seats will be free for other bookings.`;
 }
 
 async function copy(text: string) {
