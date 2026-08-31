@@ -67,12 +67,11 @@ export default async function HomePage({
       <div className="flex w-full min-w-0 max-w-lg flex-col gap-6">
         <p className="text-sm text-black/60 dark:text-white/60">
           Fill this in to request tickets. Requests are handled strictly first-come,
-          first-served once the coordinator reviews them.
+          first-served basis.
         </p>
 
         <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
-          Please don&apos;t call the coordinator about your request &mdash; calls aren&apos;t
-          being taken. Use{" "}
+          Please don&apos;t call the coordinators about your request. Use{" "}
           <Link href="/status" className="font-medium underline">
             Check status
           </Link>{" "}
