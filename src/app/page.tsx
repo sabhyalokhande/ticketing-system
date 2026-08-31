@@ -50,13 +50,13 @@ export default async function HomePage({
           </a>
         </div>
 
-        <div className="card grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-xs">
-          <span className="text-black/50 dark:text-white/50">Date</span>
-          <span>Sunday, 25 October 2026</span>
-          <span className="text-black/50 dark:text-white/50">Show time</span>
-          <span>4:00 PM</span>
-          <span className="text-black/50 dark:text-white/50">Venue</span>
-          <span>
+        <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-lg border-2 border-amber-400 bg-amber-50 p-4 text-xs dark:border-amber-500 dark:bg-amber-950/40">
+          <span className="font-medium text-amber-700 dark:text-amber-400">Date</span>
+          <span className="text-amber-950 dark:text-amber-100">Sunday, 25 October 2026</span>
+          <span className="font-medium text-amber-700 dark:text-amber-400">Show time</span>
+          <span className="text-amber-950 dark:text-amber-100">4:00 PM</span>
+          <span className="font-medium text-amber-700 dark:text-amber-400">Venue</span>
+          <span className="text-amber-950 dark:text-amber-100">
             Kalidasa Natyamandir, Purushottam Kheraj Road, Near Panch Rasta, Mulund (West),
             Mumbai 400080
           </span>
