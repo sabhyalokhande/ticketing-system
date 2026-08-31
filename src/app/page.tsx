@@ -122,7 +122,7 @@ export default async function HomePage({
                 </option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} &mdash; ₹{c.price}/ticket
+                    {c.name} (Rs {c.price} per ticket)
                   </option>
                 ))}
               </select>

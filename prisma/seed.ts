@@ -64,7 +64,7 @@ async function seedCategory(name: string, price: number, rows: Record<string, nu
 }
 
 async function main() {
-  await seedCategory("Main Auditorium", 1500, MAIN_AUDITORIUM_ROWS);
+  await seedCategory("Auditorium level", 1500, MAIN_AUDITORIUM_ROWS);
   await seedCategory("Balcony", 800, BALCONY_ROWS);
 
   const regions = [

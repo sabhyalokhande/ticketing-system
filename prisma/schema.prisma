@@ -15,7 +15,7 @@ datasource db {
 
 model Category {
   id        String   @id @default(cuid())
-  name      String   @unique // e.g. "Main Auditorium" | "Balcony"
+  name      String   @unique // e.g. "Auditorium level" | "Balcony"
   price     Int // price per ticket, in rupees
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
