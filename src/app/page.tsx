@@ -176,12 +176,6 @@ export default async function HomePage({
             )}
           </>
         )}
-
-        <footer className="pt-2 text-xs text-black/40 dark:text-white/40">
-          <Link href="/status" className="underline">
-            Already submitted a request? Check status
-          </Link>
-        </footer>
       </div>
     </main>
   );
