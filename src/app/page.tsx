@@ -19,6 +19,10 @@ export default async function HomePage({
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-4 py-10 md:flex-row md:items-center md:justify-center">
       {/* Poster + trailer - left column on desktop, on top on mobile */}
       <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
+        <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
+          Booking will start from 5th September 2026, 9:00 AM
+        </div>
+
         <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-lg border border-black/10 dark:border-white/15 md:mx-0 md:max-w-none">
           <Image
             src="/Drama-Image.jpeg"
@@ -29,6 +33,19 @@ export default async function HomePage({
             priority
           />
         </div>
+
+        <a
+          href="https://youtu.be/-bxvbAdHkYQ?si=ASe1Ic9L37WRgBOF"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.4 31.4 0 0 0 0 12a31.4 31.4 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.4 31.4 0 0 0 24 12a31.4 31.4 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" />
+          </svg>
+          Watch trailer on YouTube
+        </a>
+
         <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-lg border-2 border-amber-400 bg-amber-50 p-4 text-xs dark:border-amber-500 dark:bg-amber-950/40">
           <span className="font-medium text-amber-700 dark:text-amber-400">Date</span>
           <span className="text-amber-950 dark:text-amber-100">Sunday, 25 October 2026</span>
