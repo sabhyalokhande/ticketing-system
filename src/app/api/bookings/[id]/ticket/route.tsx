@@ -94,7 +94,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
             <StubRow label="Date" value="25 Oct 2026" />
-            <StubRow label="Venue" value="Kalidasa Natyamandir" />
+            <StubRow label="Venue" value="Mahakavi Kalidas Natyamandir" />
             <StubRow label="Time" value="4:00 PM" />
             <StubRow label="Rate" value={`Rs ${booking.category.price}`} />
             <StubRow label="Seat" value={seatLabels} />
@@ -170,7 +170,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             <Row label="Seats" value={seatLabels} />
             <Row label="Date" value="Sunday, 25 October 2026" />
             <Row label="Time" value="4:00 PM" />
-            <Row label="Venue" value="Kalidasa Natyamandir, Mulund (West), Mumbai" />
+            <Row label="Venue" value="Mahakavi Kalidas Natyamandir, Mulund (West), Mumbai" />
             <Row label="Amount Paid" value={`Rs ${booking.amountDue ?? 0}`} />
           </div>
         </div>

@@ -199,8 +199,8 @@ function EventDetailsCard() {
       <span className="text-amber-950 dark:text-amber-100">4:00 PM</span>
       <span className="font-medium text-amber-700 dark:text-amber-400">Venue</span>
       <span className="text-amber-950 dark:text-amber-100">
-        Kalidasa Natyamandir, Purushottam Kheraj Road, Near Panch Rasta, Mulund (West), Mumbai
-        400080
+        Mahakavi Kalidas Natyamandir, Purushottam Kheraj Road, Near Panch Rasta, Mulund (West),
+        Mumbai 400080
       </span>
     </div>
   );
