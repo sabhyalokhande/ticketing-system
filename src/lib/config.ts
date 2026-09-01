@@ -11,3 +11,15 @@ export const config = {
   bankAccountNumber: process.env.BANK_ACCOUNT_NUMBER ?? "",
   bankIfsc: process.env.BANK_IFSC ?? "",
 };
+
+// The public request form is gated until this instant (5th September
+// 2026, 9:00 AM IST = 03:30 UTC the same day). Stored as a fixed UTC
+// instant rather than separate date/time strings so the comparison is
+// correct regardless of the server's own timezone (see the IST-display
+// bug this app hit earlier - comparisons on Date objects are timezone-safe
+// the same way, but only if the instant itself is built correctly once).
+export const BOOKING_OPENS_AT = new Date("2026-09-05T03:30:00.000Z");
+
+export function isBookingOpen(): boolean {
+  return new Date() >= BOOKING_OPENS_AT;
+}
