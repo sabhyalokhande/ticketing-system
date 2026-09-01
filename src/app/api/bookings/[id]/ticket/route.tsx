@@ -28,6 +28,20 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Compact counterfoil version of Row, for the tear-off stub on the left -
+// same info as the main ticket, just condensed, the way a cheque or old
+// cinema ticket keeps a matching record stub.
+function StubRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", padding: "5px 0" }}>
+      <div style={{ display: "flex", color: "#92867a", fontSize: 13 }}>{label}</div>
+      <div style={{ display: "flex", color: "#2b241c", fontSize: 15, fontWeight: 600 }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
 
@@ -54,6 +68,39 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           fontFamily: "sans-serif",
         }}
       >
+        {/* Counterfoil stub - same details as the main ticket, condensed,
+            like the tear-off left half of a cheque or old cinema ticket. */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: 260,
+            padding: "28px 22px",
+            borderRight: "3px dashed #d8cdbd",
+          }}
+        >
+          <div style={{ display: "flex", fontSize: 15, color: "#92867a" }}>NO. {booking.ref}</div>
+          <div
+            style={{
+              display: "flex",
+              fontSize: 18,
+              fontWeight: 700,
+              color: "#2b241c",
+              marginTop: 8,
+              lineHeight: 1.25,
+            }}
+          >
+            Aamchya Pidhichi Goshtach Vegali
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
+            <StubRow label="Date" value="25 Oct 2026" />
+            <StubRow label="Venue" value="Kalidasa Natyamandir" />
+            <StubRow label="Time" value="4:00 PM" />
+            <StubRow label="Rate" value={`Rs ${booking.category.price}`} />
+            <StubRow label="Seat" value={seatLabels} />
+          </div>
+        </div>
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={poster}
@@ -129,6 +176,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
         </div>
       </div>
     ),
-    { width: 1400, height: 644 }
+    { width: 1660, height: 644 }
   );
 }
