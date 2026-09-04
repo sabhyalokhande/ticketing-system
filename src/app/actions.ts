@@ -2,11 +2,10 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { generateBookingRef } from "@/lib/ref";
 import { expireStaleBookings } from "@/lib/expiry";
-import { isBookingAvailable, PREVIEW_COOKIE } from "@/lib/config";
+import { isBookingOpen, isValidPreviewCode } from "@/lib/config";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name").max(100),
@@ -22,9 +21,14 @@ const bookingSchema = z.object({
 export async function createBooking(formData: FormData) {
   // Belt-and-braces: the form itself is hidden until this instant, but
   // enforce it here too so nobody can jump the first-come-first-served
-  // queue by posting directly.
-  const previewCookie = (await cookies()).get(PREVIEW_COOKIE)?.value;
-  if (!isBookingAvailable(previewCookie)) {
+  // queue by posting directly. A valid preview code (submitted as a hidden
+  // field from /preview/<code>) is the only early-access path.
+  const previewCode = String(formData.get("previewCode") ?? "");
+  const viaPreview = isValidPreviewCode(previewCode);
+  // Where to send the user back to if their submission is rejected.
+  const backTo = viaPreview ? `/preview/${previewCode}` : "/";
+
+  if (!isBookingOpen() && !viaPreview) {
     redirect(`/?error=${encodeURIComponent("Booking hasn't opened yet.")}`);
   }
 
@@ -38,7 +42,7 @@ export async function createBooking(formData: FormData) {
 
   if (!parsed.success) {
     const message = parsed.error.issues[0]?.message ?? "Invalid submission";
-    redirect(`/?error=${encodeURIComponent(message)}`);
+    redirect(`${backTo}?error=${encodeURIComponent(message)}`);
   }
 
   const { name, mobile, categoryId, regionId, quantity } = parsed.data;
@@ -48,7 +52,7 @@ export async function createBooking(formData: FormData) {
     prisma.region.findUnique({ where: { id: regionId } }),
   ]);
   if (!category || !region) {
-    redirect(`/?error=${encodeURIComponent("Category or region no longer available")}`);
+    redirect(`${backTo}?error=${encodeURIComponent("Category or region no longer available")}`);
   }
 
   const ref = await generateBookingRef();
