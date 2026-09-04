@@ -5,6 +5,7 @@ import { expireStaleBookings } from "@/lib/expiry";
 import { formatDateTimeIST } from "@/lib/date";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
+import { PaymentDeviceAlert } from "@/components/PaymentDeviceAlert";
 import { submitPayment } from "../actions";
 
 export default async function StatusPage({
@@ -155,6 +156,7 @@ export default async function StatusPage({
 
       {booking.status === "ALLOCATED" && (
         <div className="card flex flex-col gap-4">
+          <PaymentDeviceAlert />
           <div>
             <p className="text-sm font-medium">
               Pay ₹{booking.amountDue} within {booking.expiresAt ? "the deadline below" : "24 hours"}{" "}

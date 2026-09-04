@@ -63,9 +63,16 @@ async function seedCategory(name: string, price: number, rows: Record<string, nu
   }
 }
 
+// Donor's Pass has no seat block of its own - the coordinator allocates its
+// holders a real seat from the main auditorium pool (see src/lib/categories.ts).
+async function seedFlatCategory(name: string, price: number) {
+  await prisma.category.upsert({ where: { name }, update: {}, create: { name, price } });
+}
+
 async function main() {
   await seedCategory("Auditorium level", 1500, MAIN_AUDITORIUM_ROWS);
   await seedCategory("Balcony", 800, BALCONY_ROWS);
+  await seedFlatCategory("Donor's Pass", 2500);
 
   const regions = [
     "Western (Virar to Churchgate)",

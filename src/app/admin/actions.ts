@@ -7,6 +7,7 @@ import { isAdmin, destroyAdminSession } from "@/lib/auth";
 import { config } from "@/lib/config";
 import { expireStaleBookings } from "@/lib/expiry";
 import { addSeatsToCategory } from "@/lib/seats";
+import { resolveSeatCategoryId } from "@/lib/categories";
 
 async function requireAdmin() {
   if (!(await isAdmin())) {
@@ -54,9 +55,10 @@ export async function allocateBookingWithSeats(
     };
   }
 
+  const seatCategoryId = await resolveSeatCategoryId(booking);
   const seats = await prisma.seat.findMany({ where: { id: { in: uniqueSeatIds } } });
   const allStillFree = seats.every(
-    (s) => s.categoryId === booking.categoryId && s.bookingId === null
+    (s) => s.categoryId === seatCategoryId && s.bookingId === null
   );
   if (seats.length !== uniqueSeatIds.length || !allStillFree) {
     return {

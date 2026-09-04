@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Playfair_Display, Tiro_Devanagari_Marathi } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +10,19 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Display serif for the invitation header (English lines).
+const playfair = Playfair_Display({
+  variable: "--font-serif",
+  subsets: ["latin"],
+});
+
+// Devanagari face for the Marathi title and quote on the invitation header.
+const tiroMarathi = Tiro_Devanagari_Marathi({
+  variable: "--font-marathi",
+  weight: "400",
+  subsets: ["devanagari", "latin"],
 });
 
 const SITE_URL = "https://ticketing-system-lime-zeta.vercel.app";
@@ -39,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} ${tiroMarathi.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

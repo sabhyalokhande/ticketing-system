@@ -1,6 +1,13 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { createBooking } from "@/app/actions";
+
+// Only render the logo strip once the assets have actually been added to public/.
+function hasInviteLogos() {
+  return existsSync(path.join(process.cwd(), "public", "logo-kme.png"));
+}
 
 const TRAILER_URL = "https://youtu.be/-bxvbAdHkYQ?si=ASe1Ic9L37WRgBOF";
 
@@ -184,22 +191,44 @@ export function EventDetailsCard() {
 
 function InviteHeader() {
   return (
-    <div className="rounded-xl border-2 border-amber-400 bg-amber-50 px-4 py-5 text-center dark:border-amber-500 dark:bg-amber-950/40 sm:px-6 sm:py-6">
-      <p className="text-[13px] font-semibold leading-snug text-amber-900 dark:text-amber-100 sm:text-sm">
-        KME (Konkan Maratha Entrepreneurs), LMP (Like Minded People) &amp; All Karwar
-        Konkan Maratha Associations
-      </p>
-      <p className="mt-2 text-xs text-amber-800 dark:text-amber-200/90 sm:text-[13px]">
-        Cordially invite you with family to join our grand community gathering
-      </p>
+    <div className="rounded-xl border border-amber-300/70 bg-gradient-to-b from-amber-50 to-white p-0.5 shadow-sm dark:border-amber-500/30 dark:from-amber-950/40 dark:to-amber-950/5">
+      <div className="rounded-[10px] border border-amber-200/60 px-4 py-4 text-center dark:border-amber-500/15 sm:px-6 sm:py-5">
+        {hasInviteLogos() && (
+          // White pill keeps the logos legible on the amber card in both themes.
+          <div className="mx-auto mb-3 flex w-fit max-w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 shadow-sm sm:gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-kme.png"
+              alt="Konkan Maratha Entrepreneurs"
+              className="h-8 w-auto max-w-[60%] object-contain sm:h-10"
+            />
+            <span className="h-8 w-px shrink-0 bg-black/10 sm:h-10" aria-hidden />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-lmp.png"
+              alt="LMP - Karwar Konkan Maratha Samaj"
+              className="h-9 w-auto object-contain sm:h-11"
+            />
+          </div>
+        )}
 
-      <h2 className="mt-4 text-xl font-bold leading-tight text-amber-950 dark:text-amber-50 sm:text-2xl">
-        आम्गेलो कारवार कोंकण मराठा मेळावो २०२६
-      </h2>
+        <p className="mx-auto max-w-sm text-xs font-medium leading-relaxed text-amber-800 [font-family:var(--font-serif)] dark:text-amber-200/90 sm:text-[13px]">
+          KME (Konkan Maratha Entrepreneurs), LMP (Like Minded People) &amp; All Karwar
+          Konkan Maratha Associations
+        </p>
 
-      <p className="mx-auto mt-3 max-w-prose text-[13px] italic leading-relaxed text-amber-800 dark:text-amber-200/90 sm:text-sm">
-        &ldquo;येया, मेळ्या, तरुणाईक जोडया, एकमेका मदत कन्या आणि हसत हसत नाटक पळ्या&hellip;&rdquo;
-      </p>
+        <p className="mx-auto mt-1.5 max-w-sm text-xs italic leading-relaxed text-amber-900/75 [font-family:var(--font-serif)] dark:text-amber-100/75 sm:text-[13px]">
+          cordially invite you with family to join our grand community gathering
+        </p>
+
+        <h2 className="mt-3 text-lg leading-snug text-amber-950 [font-family:var(--font-marathi)] dark:text-amber-50 sm:text-xl">
+          आम्गेलो कारवार कोंकण मराठा मेळावो २०२६
+        </h2>
+
+        <p className="mx-auto mt-3 max-w-md border-t border-amber-200/70 pt-3 text-xs leading-relaxed text-amber-800/85 [font-family:var(--font-marathi)] dark:border-amber-500/15 dark:text-amber-200/85 sm:text-[13px]">
+          &ldquo;येया, मेळ्या, तरुणाईक जोडया, एकमेका मदत कन्या आणि हसत हसत नाटक पळ्या&hellip;&rdquo;
+        </p>
+      </div>
     </div>
   );
 }
