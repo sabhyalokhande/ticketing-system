@@ -168,8 +168,13 @@ export default async function StatusPage({
           </div>
 
           {qrDataUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={qrDataUrl} alt="UPI payment QR code" className="mx-auto h-64 w-64" />
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-center text-sm font-medium text-amber-700 dark:text-amber-400">
+                Scan the QR code from another device for a successful payment.
+              </p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={qrDataUrl} alt="UPI payment QR code" className="h-64 w-64" />
+            </div>
           )}
 
           {config.bankName && (
