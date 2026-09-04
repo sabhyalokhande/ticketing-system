@@ -12,7 +12,7 @@ const bookingSchema = z.object({
   mobile: z
     .string()
     .trim()
-    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
+    .regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit WhatsApp number"),
   categoryId: z.string().min(1, "Select a category"),
   regionId: z.string().min(1, "Select a region"),
   quantity: z.coerce.number().int().min(1, "At least 1 ticket").max(10, "Max 10 tickets per request"),

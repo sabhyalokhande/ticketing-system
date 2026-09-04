@@ -78,15 +78,15 @@ export async function BookingPortal({
               />
             </Field>
 
-            <Field label="Mobile Number">
+            <Field label="Mobile Number (WhatsApp number)">
               <input
                 name="mobile"
                 required
                 inputMode="numeric"
                 pattern="[6-9][0-9]{9}"
-                title="10-digit mobile number"
+                title="10-digit WhatsApp number"
                 maxLength={10}
-                placeholder="10-digit mobile number"
+                placeholder="10-digit WhatsApp number"
                 className="input"
               />
             </Field>
