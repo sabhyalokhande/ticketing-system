@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { createBooking } from "@/app/actions";
 
@@ -40,18 +39,12 @@ export async function BookingPortal({
 
       {/* Form - right column on desktop, below the poster on mobile */}
       <div id="booking-form" className="flex w-full min-w-0 max-w-lg scroll-mt-6 flex-col gap-6">
-        <p className="text-sm text-black/60 dark:text-white/60">
-          Fill this in to request tickets. Requests are handled strictly first-come,
-          first-served basis.
-        </p>
+        <InviteHeader />
 
-        <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
-          Please don&apos;t call the coordinators about your request. Use{" "}
-          <Link href="/status" className="font-medium underline">
-            Check status
-          </Link>{" "}
-          to track it instead.
-        </div>
+        <p className="text-sm text-black/60 dark:text-white/60">
+          Fill this form to request for tickets. Requests will be handled strictly on
+          First-come, First-served basis.
+        </p>
 
         {error && (
           <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
@@ -67,18 +60,18 @@ export async function BookingPortal({
           <form action={createBooking} className="flex flex-col gap-4">
             {previewCode && <input type="hidden" name="previewCode" value={previewCode} />}
 
-            <Field label="Full name">
+            <Field label="Full Name">
               <input
                 name="name"
                 required
                 minLength={2}
                 maxLength={100}
-                placeholder="Your name"
+                placeholder="Your Name"
                 className="input"
               />
             </Field>
 
-            <Field label="Mobile number">
+            <Field label="Mobile Number">
               <input
                 name="mobile"
                 required
@@ -117,7 +110,7 @@ export async function BookingPortal({
               </select>
             </Field>
 
-            <Field label="Number of tickets">
+            <Field label="Number of Tickets">
               <select name="quantity" required className="input" defaultValue="1">
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
                   <option key={n} value={n}>
@@ -185,6 +178,28 @@ export function EventDetailsCard() {
         Mahakavi Kalidas Natyamandir, Purushottam Kheraj Road, Near Panch Rasta, Mulund (West),
         Mumbai 400080
       </span>
+    </div>
+  );
+}
+
+function InviteHeader() {
+  return (
+    <div className="rounded-xl border-2 border-amber-400 bg-amber-50 px-4 py-5 text-center dark:border-amber-500 dark:bg-amber-950/40 sm:px-6 sm:py-6">
+      <p className="text-[13px] font-semibold leading-snug text-amber-900 dark:text-amber-100 sm:text-sm">
+        KME (Konkan Maratha Entrepreneurs), LMP (Like Minded People) &amp; All Karwar
+        Konkan Maratha Associations
+      </p>
+      <p className="mt-2 text-xs text-amber-800 dark:text-amber-200/90 sm:text-[13px]">
+        Cordially invite you with family to join our grand community gathering
+      </p>
+
+      <h2 className="mt-4 text-xl font-bold leading-tight text-amber-950 dark:text-amber-50 sm:text-2xl">
+        आम्गेलो कारवार कोंकण मराठा मेळावो २०२६
+      </h2>
+
+      <p className="mx-auto mt-3 max-w-prose text-[13px] italic leading-relaxed text-amber-800 dark:text-amber-200/90 sm:text-sm">
+        &ldquo;येया, मेळ्या, तरुणाईक जोडया, एकमेका मदत कन्या आणि हसत हसत नाटक पळ्या&hellip;&rdquo;
+      </p>
     </div>
   );
 }

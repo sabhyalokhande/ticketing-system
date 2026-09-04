@@ -9,9 +9,9 @@ const STYLES: Record<string, string> = {
 
 const LABELS: Record<string, string> = {
   PENDING: "Pending review",
-  ALLOCATED: "Allocated – payment due",
+  ALLOCATED: "Allocated Seat",
   PAYMENT_SUBMITTED: "Payment submitted",
-  CONFIRMED: "Blocked – payment confirmed",
+  CONFIRMED: "Blocked Seat – payment confirmed",
   REJECTED: "Rejected",
   EXPIRED: "Expired",
 };
