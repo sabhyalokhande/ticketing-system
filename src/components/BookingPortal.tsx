@@ -137,8 +137,41 @@ export async function BookingPortal({
             </p>
           </form>
         )}
+
+        <VolunteerContacts />
       </div>
     </main>
+  );
+}
+
+const VOLUNTEERS: { name: string; area: string; phone: string }[] = [
+  { name: "Amit Naik", area: "Western", phone: "9820020553" },
+  { name: "Puneet Rane", area: "Airoli - Panvel", phone: "9820843301" },
+  { name: "Dr Shripad Naik", area: "Mulund", phone: "9833254935" },
+  { name: "Dinakar Naik", area: "Bhandup to Dadar", phone: "9867507922" },
+  { name: "Nandu Powar", area: "Dombivali to Khopoli", phone: "9819706153" },
+  { name: "Deepak Sail", area: "Thane", phone: "9920249263" },
+  { name: "Sunil Nayak", area: "Kalwa", phone: "9821044259" },
+];
+
+function VolunteerContacts() {
+  return (
+    <footer className="mt-2 border-t border-black/10 pt-5 dark:border-white/15">
+      <h3 className="text-sm font-semibold">Contact Volunteers for any queries</h3>
+      <ul className="mt-3 flex flex-col gap-2 text-sm">
+        {VOLUNTEERS.map((v) => (
+          <li key={v.phone} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+            <span>
+              {v.name}{" "}
+              <span className="text-black/50 dark:text-white/50">({v.area})</span>
+            </span>
+            <a href={`tel:+91${v.phone}`} className="font-medium tabular-nums underline">
+              {v.phone.replace(/(\d{5})(\d{5})/, "$1 $2")}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </footer>
   );
 }
 
