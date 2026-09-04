@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { isBookingOpen } from "@/lib/config";
+import { isBookingOpen, isBookingAvailable, PREVIEW_COOKIE } from "@/lib/config";
 import { createBooking } from "./actions";
 
 const TRAILER_URL = "https://youtu.be/-bxvbAdHkYQ?si=ASe1Ic9L37WRgBOF";
@@ -12,7 +13,9 @@ export default async function HomePage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
-  const bookingOpen = isBookingOpen();
+  const previewCookie = (await cookies()).get(PREVIEW_COOKIE)?.value;
+  const bookingOpen = isBookingAvailable(previewCookie);
+  const previewMode = bookingOpen && !isBookingOpen();
 
   if (!bookingOpen) {
     return (
@@ -45,7 +48,9 @@ export default async function HomePage({
       {/* Poster + trailer - left column on desktop, on top on mobile */}
       <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
         <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
-          Booking will start from 5th September 2026, 9:00 AM
+          {previewMode
+            ? "Preview link — booking opens publicly 5th September 2026, 9:00 AM"
+            : "Booking will start from 5th September 2026, 9:00 AM"}
         </div>
 
         <Poster />

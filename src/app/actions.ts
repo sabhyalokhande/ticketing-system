@@ -2,10 +2,11 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { generateBookingRef } from "@/lib/ref";
 import { expireStaleBookings } from "@/lib/expiry";
-import { isBookingOpen } from "@/lib/config";
+import { isBookingAvailable, PREVIEW_COOKIE } from "@/lib/config";
 
 const bookingSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name").max(100),
@@ -22,7 +23,8 @@ export async function createBooking(formData: FormData) {
   // Belt-and-braces: the form itself is hidden until this instant, but
   // enforce it here too so nobody can jump the first-come-first-served
   // queue by posting directly.
-  if (!isBookingOpen()) {
+  const previewCookie = (await cookies()).get(PREVIEW_COOKIE)?.value;
+  if (!isBookingAvailable(previewCookie)) {
     redirect(`/?error=${encodeURIComponent("Booking hasn't opened yet.")}`);
   }
 
