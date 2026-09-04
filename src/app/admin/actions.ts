@@ -4,10 +4,16 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isAdmin, destroyAdminSession } from "@/lib/auth";
-import { config } from "@/lib/config";
 import { expireStaleBookings } from "@/lib/expiry";
 import { addSeatsToCategory } from "@/lib/seats";
 import { resolveSeatCategoryId } from "@/lib/categories";
+import { formatDateTimeIST } from "@/lib/date";
+import {
+  computeExpiry,
+  getPaymentWindow,
+  setPaymentWindow,
+  type HoldMode,
+} from "@/lib/settings";
 
 async function requireAdmin() {
   if (!(await isAdmin())) {
@@ -68,7 +74,7 @@ export async function allocateBookingWithSeats(
   }
 
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + config.holdHours * 60 * 60 * 1000);
+  const expiresAt = computeExpiry(now, await getPaymentWindow());
 
   await prisma.$transaction([
     prisma.seat.updateMany({
@@ -87,7 +93,7 @@ export async function allocateBookingWithSeats(
   ]);
 
   withNotice(
-    `Blocked ${booking.quantity} seat(s) for ${booking.ref}. Payment window: ${config.holdHours}h.`
+    `Blocked ${booking.quantity} seat(s) for ${booking.ref}. Payment due by ${formatDateTimeIST(expiresAt)} IST.`
   );
 }
 
@@ -152,6 +158,31 @@ export async function confirmPayment(bookingId: string) {
     data: { status: "CONFIRMED", confirmedAt: new Date() },
   });
   return withNotice(`Confirmed ${booking.ref}. Tickets finalized.`);
+}
+
+const paymentWindowSchema = z.object({
+  holdMode: z.enum(["hours", "end-of-next-day"]),
+  holdHours: z.coerce.number().int().min(1).max(720),
+});
+
+export async function updatePaymentWindow(formData: FormData) {
+  await requireAdmin();
+  const parsed = paymentWindowSchema.safeParse({
+    holdMode: formData.get("holdMode"),
+    holdHours: formData.get("holdHours"),
+  });
+  if (!parsed.success) return withNotice("Invalid payment window settings", false);
+
+  await setPaymentWindow({
+    holdMode: parsed.data.holdMode as HoldMode,
+    holdHours: parsed.data.holdHours,
+  });
+
+  return withNotice(
+    parsed.data.holdMode === "hours"
+      ? `Payment window: ${parsed.data.holdHours} hour(s) from allocation`
+      : "Payment window: until the end of the next day"
+  );
 }
 
 const updatePriceSchema = z.object({

@@ -5,7 +5,7 @@ import { expireStaleBookings } from "@/lib/expiry";
 import { formatDateTimeIST } from "@/lib/date";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
-import { PaymentDeviceAlert } from "@/components/PaymentDeviceAlert";
+import { AlertModal } from "@/components/AlertModal";
 import { submitPayment } from "../actions";
 
 export default async function StatusPage({
@@ -156,10 +156,13 @@ export default async function StatusPage({
 
       {booking.status === "ALLOCATED" && (
         <div className="card flex flex-col gap-4">
-          <PaymentDeviceAlert />
+          <AlertModal icon="📱" title="Scan from another device" dismissLabel="Got it">
+            Scan the QR code from another device for a successful payment. Scanning it on this
+            same phone will not work.
+          </AlertModal>
           <div>
             <p className="text-sm font-medium">
-              Pay ₹{booking.amountDue} within {booking.expiresAt ? "the deadline below" : "24 hours"}{" "}
+              Pay ₹{booking.amountDue} within {booking.expiresAt ? "the deadline below" : "the payment window"}{" "}
               to confirm your tickets.
             </p>
             {booking.expiresAt && (
@@ -277,7 +280,20 @@ export default async function StatusPage({
 
       {booking.status === "EXPIRED" && (
         <div className="card flex flex-col gap-3 text-sm">
-          <p>The 24-hour payment window passed before payment was submitted, so the hold was released.</p>
+          <AlertModal
+            icon="⏰"
+            title="Booking link expired"
+            actionHref="/"
+            actionLabel="Make a new booking"
+            dismissLabel="Close"
+          >
+            Your payment window is over. Since the payment wasn&apos;t made in time, your
+            allocated tickets have been withdrawn. Please make a new booking.
+          </AlertModal>
+          <p>
+            The payment window passed before payment was submitted, so the hold was released
+            and your seats went back to the pool.
+          </p>
           <Link href="/" className="btn-secondary w-fit">
             Submit a new request
           </Link>

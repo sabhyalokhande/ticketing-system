@@ -4,9 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/auth";
 import { expireStaleBookings } from "@/lib/expiry";
 import { formatDateIST, formatDateTimeIST } from "@/lib/date";
+import { getPaymentWindow } from "@/lib/settings";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ShareLinkButtons } from "@/components/ShareLinkButtons";
 import { DeleteBookingButton } from "@/components/DeleteBookingButton";
+import { PaymentWindowForm } from "@/components/PaymentWindowForm";
 import {
   adminLogout,
   rejectBooking,
@@ -32,8 +34,20 @@ export default async function AdminPage({
 
   await expireStaleBookings();
 
-  const [categories, regions, pending, allocated, paymentSubmitted, history, seatTotals, seatAvailable, allSeats] =
+  const [
+    paymentWindow,
+    categories,
+    regions,
+    pending,
+    allocated,
+    paymentSubmitted,
+    history,
+    seatTotals,
+    seatAvailable,
+    allSeats,
+  ] =
     await Promise.all([
+      getPaymentWindow(),
       prisma.category.findMany({ orderBy: { price: "desc" } }),
       prisma.region.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
       prisma.booking.findMany({
@@ -96,6 +110,17 @@ export default async function AdminPage({
           {error}
         </div>
       )}
+
+      {/* Payment window */}
+      <Section
+        title="Payment window"
+        subtitle="How long a blocked booking has to pay before it auto-expires"
+      >
+        <PaymentWindowForm
+          holdMode={paymentWindow.holdMode}
+          holdHours={paymentWindow.holdHours}
+        />
+      </Section>
 
       {/* Pricing & seats */}
       <Section title="Categories, pricing & seats">

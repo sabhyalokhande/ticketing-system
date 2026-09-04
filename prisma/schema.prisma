@@ -13,6 +13,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Single-row table (id is always 1) holding coordinator-tunable settings
+// that shouldn't require a redeploy to change.
+model Setting {
+  id Int @id @default(1)
+
+  // How the payment deadline (Booking.expiresAt) is computed on allocation:
+  //   "hours"           -> allocatedAt + holdHours
+  //   "end-of-next-day" -> midnight (IST) at the end of the following day,
+  //                        so a 2pm booking still gets the whole next day
+  holdMode  String @default("hours")
+  holdHours Int    @default(24)
+
+  updatedAt DateTime @updatedAt
+}
+
 model Category {
   id        String   @id @default(cuid())
   name      String   @unique // e.g. "Auditorium level" | "Balcony"
