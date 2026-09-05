@@ -160,22 +160,32 @@ export async function confirmPayment(bookingId: string) {
   return withNotice(`Confirmed ${booking.ref}. Tickets finalized.`);
 }
 
-const paymentWindowSchema = z.object({
-  holdMode: z.enum(["hours", "end-of-next-day"]),
-  holdHours: z.coerce.number().int().min(1).max(720),
-});
+const paymentWindowSchema = z
+  .object({
+    holdMode: z.enum(["hours", "end-of-next-day"]),
+    // The hours field is disabled (and so submits nothing) in "end-of-next-day"
+    // mode - only require it when the fixed-hours mode is actually selected.
+    holdHours: z.coerce.number().int().min(1).max(720).optional(),
+  })
+  .refine((data) => data.holdMode !== "hours" || data.holdHours !== undefined, {
+    message: "Enter the number of hours",
+    path: ["holdHours"],
+  });
 
 export async function updatePaymentWindow(formData: FormData) {
   await requireAdmin();
   const parsed = paymentWindowSchema.safeParse({
     holdMode: formData.get("holdMode"),
-    holdHours: formData.get("holdHours"),
+    holdHours: formData.get("holdHours") || undefined,
   });
   if (!parsed.success) return withNotice("Invalid payment window settings", false);
 
+  // Keep whatever hours value was already saved when switching to
+  // "end-of-next-day" mode, so it's still there if they switch back later.
+  const current = await getPaymentWindow();
   await setPaymentWindow({
     holdMode: parsed.data.holdMode as HoldMode,
-    holdHours: parsed.data.holdHours,
+    holdHours: parsed.data.holdHours ?? current.holdHours,
   });
 
   return withNotice(
