@@ -110,25 +110,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           <div
             style={{
               display: "flex",
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#c2410c",
-              marginTop: 8,
-            }}
-          >
-            Konkan Maratha Melava 2026
-          </div>
-          <div
-            style={{
-              display: "flex",
               fontSize: 18,
               fontWeight: 700,
               color: "#2b241c",
-              marginTop: 4,
+              marginTop: 8,
               lineHeight: 1.25,
             }}
           >
-            Aamchya Pidhichi Goshtach Vegali
+            Konkan Maratha Melava 2026
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
             <StubRow label="Date" value="25 Oct 2026" />
@@ -179,17 +168,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", marginTop: 31, gap: 8 }}>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 24,
-                fontWeight: 700,
-                color: "#c2410c",
-              }}
-            >
-              Konkan Maratha Melava 2026
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 31 }}>
             <div
               style={{
                 display: "flex",
@@ -198,7 +177,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
                 color: "#2b241c",
               }}
             >
-              Aamchya Pidhichi Goshtach Vegali
+              Konkan Maratha Melava 2026
             </div>
           </div>
 
