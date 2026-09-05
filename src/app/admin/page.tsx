@@ -41,6 +41,7 @@ export default async function AdminPage({
     pending,
     allocated,
     paymentSubmitted,
+    confirmedCount,
     history,
     seatTotals,
     seatAvailable,
@@ -66,6 +67,7 @@ export default async function AdminPage({
         omit: { paymentScreenshot: true },
         orderBy: { paymentSubmittedAt: "asc" },
       }),
+      prisma.booking.count({ where: { status: "CONFIRMED" } }),
       prisma.booking.findMany({
         where: { status: { in: ["CONFIRMED", "REJECTED", "EXPIRED"] } },
         include: { category: true, region: true, ...seatSelect },
@@ -89,6 +91,10 @@ export default async function AdminPage({
     seatsByCategory.get(s.categoryId)!.push(s);
   }
 
+  const totalSeats = seatTotals.reduce((sum, s) => sum + s._count._all, 0);
+  const availableSeats = seatAvailable.reduce((sum, s) => sum + s._count._all, 0);
+  const seatsGivenOut = totalSeats - availableSeats;
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -100,11 +106,13 @@ export default async function AdminPage({
         </form>
       </header>
 
-      {/* At-a-glance counts - what actually needs attention right now */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard accent="amber" label="Pending requests" count={pending.length} />
+      {/* At-a-glance counts - the full pipeline, and how much inventory is left */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <StatCard accent="amber" label="Pending" count={pending.length} />
         <StatCard accent="blue" label="Blocked — awaiting payment" count={allocated.length} />
         <StatCard accent="purple" label="Needs verification" count={paymentSubmitted.length} />
+        <StatCard accent="green" label="Payment confirmed" count={confirmedCount} />
+        <StatCard accent="gray" label="Seats allocated" count={seatsGivenOut} total={totalSeats} />
       </div>
 
       {notice && (
@@ -128,21 +136,37 @@ export default async function AdminPage({
           {pending.length === 0 ? (
             <Empty text="No pending requests." />
           ) : (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {pending.map((b) => (
-                <div
-                  key={b.id}
-                  className="card flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <BookingSummary booking={b} />
-                  <div className="flex flex-wrap gap-2 sm:shrink-0">
-                    <Link href={`/admin/allocate/${b.id}`} className="btn-primary">
-                      Allocate
-                    </Link>
-                    <RejectForm bookingId={b.id} />
-                    <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
+                <details key={b.id} className="card group py-2 [&_summary::-webkit-details-marker]:hidden">
+                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 text-sm">
+                    <span
+                      aria-hidden
+                      className="shrink-0 text-black/40 transition-transform group-open:rotate-90 dark:text-white/40"
+                    >
+                      &rsaquo;
+                    </span>
+                    <span className="font-mono font-medium">{b.ref}</span>
+                    <StatusBadge status={b.status} />
+                    <span className="font-medium">{b.name}</span>
+                    <span className="text-black/50 dark:text-white/50">
+                      {b.quantity}&times; {b.category.name} &middot; {b.region.name}
+                    </span>
+                    <span className="ml-auto shrink-0 text-xs text-black/40 dark:text-white/40">
+                      {formatDateTimeIST(b.createdAt)} IST
+                    </span>
+                  </summary>
+                  <div className="mt-3 flex flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/15 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-xs text-black/50 dark:text-white/50">{b.mobile}</span>
+                    <div className="flex flex-wrap gap-2">
+                      <Link href={`/admin/allocate/${b.id}`} className="btn-primary">
+                        Allocate
+                      </Link>
+                      <RejectForm bookingId={b.id} />
+                      <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
+                    </div>
                   </div>
-                </div>
+                </details>
               ))}
             </div>
           )}
@@ -388,32 +412,42 @@ export default async function AdminPage({
   );
 }
 
-const ACCENT_DOT: Record<string, string> = {
+type Accent = "amber" | "blue" | "purple" | "green" | "gray";
+
+const ACCENT_DOT: Record<Accent, string> = {
   amber: "bg-amber-400",
   blue: "bg-blue-500",
   purple: "bg-purple-500",
+  green: "bg-green-500",
+  gray: "bg-gray-400",
 };
 
-const ACCENT_CARD: Record<string, string> = {
-  amber:
-    "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40",
+const ACCENT_CARD: Record<Accent, string> = {
+  amber: "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40",
   blue: "border-blue-300 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40",
-  purple:
-    "border-purple-300 bg-purple-50 dark:border-purple-900 dark:bg-purple-950/40",
+  purple: "border-purple-300 bg-purple-50 dark:border-purple-900 dark:bg-purple-950/40",
+  green: "border-green-300 bg-green-50 dark:border-green-900 dark:bg-green-950/40",
+  gray: "border-black/15 bg-black/[0.03] dark:border-white/15 dark:bg-white/5",
 };
 
 function StatCard({
   accent,
   label,
   count,
+  total,
 }: {
-  accent: "amber" | "blue" | "purple";
+  accent: Accent;
   label: string;
   count: number;
+  /** When given, renders as "count / total" (e.g. seats given out of the pool). */
+  total?: number;
 }) {
   return (
     <div className={`rounded-lg border px-4 py-3 ${ACCENT_CARD[accent]}`}>
-      <div className="text-2xl font-semibold text-black dark:text-white">{count}</div>
+      <div className="text-2xl font-semibold text-black dark:text-white">
+        {count}
+        {total != null && <span className="text-base font-normal text-black/40 dark:text-white/40"> / {total}</span>}
+      </div>
       <div className="text-xs text-black/60 dark:text-white/60">{label}</div>
     </div>
   );
@@ -427,7 +461,7 @@ function Section({
 }: {
   title: string;
   subtitle?: string;
-  accent?: "amber" | "blue" | "purple";
+  accent?: Accent;
   children: React.ReactNode;
 }) {
   return (
