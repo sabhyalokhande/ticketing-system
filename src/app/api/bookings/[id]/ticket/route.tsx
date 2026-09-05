@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 let posterDataUriPromise: Promise<string> | null = null;
 function getPosterDataUri() {
   if (!posterDataUriPromise) {
-    posterDataUriPromise = readFile(join(process.cwd(), "public", "main-img.jpeg")).then(
+    posterDataUriPromise = readFile(join(process.cwd(), "public", "main-img-ticket.jpeg")).then(
       (buf) => `data:image/jpeg;base64,${buf.toString("base64")}`
     );
   }
@@ -134,7 +134,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             <StubRow label="Date" value="25 Oct 2026" />
             <StubRow label="Venue" value="Mahakavi Kalidas Natyamandir" />
             <StubRow label="Event" value="10:00 AM onwards" />
-            <StubRow label="Grand Drama" value="4:00 PM" />
             <StubRow label="Rate" value={`Rs ${booking.category.price}`} />
             <StubRow label="Seat" value={seatLabels} />
           </div>
@@ -216,7 +215,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             <Row label="Seats" value={seatLabels} />
             <Row label="Date" value="Sunday, 25 October 2026" />
             <Row label="Event" value="10:00 AM onwards" />
-            <Row label="Grand Drama" value="4:00 PM" />
             <Row label="Venue" value="Mahakavi Kalidas Natyamandir, Mulund (West), Mumbai" />
             <Row label="Amount Paid" value={`Rs ${booking.amountDue ?? 0}`} />
           </div>
