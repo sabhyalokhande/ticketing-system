@@ -126,9 +126,9 @@ export default async function AdminPage({
         </div>
       )}
 
-      {/* Action queue - the day-to-day work, always visible */}
+      {/* Action queue - the day-to-day work */}
       <div className="flex flex-col gap-6">
-        <Section
+        <Disclosure
           accent="amber"
           title={`Pending requests (${pending.length})`}
           subtitle="Oldest first — first come, first served"
@@ -136,41 +136,25 @@ export default async function AdminPage({
           {pending.length === 0 ? (
             <Empty text="No pending requests." />
           ) : (
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {pending.map((b) => (
-                <details key={b.id} className="card group py-2 [&_summary::-webkit-details-marker]:hidden">
-                  <summary className="flex cursor-pointer list-none flex-wrap items-center gap-2 text-sm">
-                    <span
-                      aria-hidden
-                      className="shrink-0 text-black/40 transition-transform group-open:rotate-90 dark:text-white/40"
-                    >
-                      &rsaquo;
-                    </span>
-                    <span className="font-mono font-medium">{b.ref}</span>
-                    <StatusBadge status={b.status} />
-                    <span className="font-medium">{b.name}</span>
-                    <span className="text-black/50 dark:text-white/50">
-                      {b.quantity}&times; {b.category.name} &middot; {b.region.name}
-                    </span>
-                    <span className="ml-auto shrink-0 text-xs text-black/40 dark:text-white/40">
-                      {formatDateTimeIST(b.createdAt)} IST
-                    </span>
-                  </summary>
-                  <div className="mt-3 flex flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/15 sm:flex-row sm:items-center sm:justify-between">
-                    <span className="text-xs text-black/50 dark:text-white/50">{b.mobile}</span>
-                    <div className="flex flex-wrap gap-2">
-                      <Link href={`/admin/allocate/${b.id}`} className="btn-primary">
-                        Allocate
-                      </Link>
-                      <RejectForm bookingId={b.id} />
-                      <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
-                    </div>
+                <div
+                  key={b.id}
+                  className="card flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <BookingSummary booking={b} />
+                  <div className="flex flex-wrap gap-2 sm:shrink-0">
+                    <Link href={`/admin/allocate/${b.id}`} className="btn-primary">
+                      Allocate
+                    </Link>
+                    <RejectForm bookingId={b.id} />
+                    <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                   </div>
-                </details>
+                </div>
               ))}
             </div>
           )}
-        </Section>
+        </Disclosure>
 
         <Section accent="blue" title={`Blocked — awaiting payment (${allocated.length})`}>
           {allocated.length === 0 ? (
@@ -485,17 +469,27 @@ function Section({
 function Disclosure({
   title,
   subtitle,
+  accent,
+  defaultOpen,
   children,
 }: {
   title: string;
   subtitle?: string;
+  accent?: Accent;
+  defaultOpen?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <details className="group rounded-lg border border-black/10 dark:border-white/15">
+    <details
+      open={defaultOpen}
+      className="group rounded-lg border border-black/10 dark:border-white/15"
+    >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
         <div>
-          <span className="text-base font-semibold">{title}</span>
+          <span className="flex items-center gap-2 text-base font-semibold">
+            {accent && <span aria-hidden className={`h-2.5 w-2.5 shrink-0 rounded-full ${ACCENT_DOT[accent]}`} />}
+            {title}
+          </span>
           {subtitle && (
             <p className="text-xs font-normal text-black/50 dark:text-white/50">{subtitle}</p>
           )}
