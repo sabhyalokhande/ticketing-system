@@ -10,11 +10,29 @@ import { prisma } from "@/lib/prisma";
 let posterDataUriPromise: Promise<string> | null = null;
 function getPosterDataUri() {
   if (!posterDataUriPromise) {
-    posterDataUriPromise = readFile(join(process.cwd(), "public", "Drama-Image.jpeg")).then(
+    posterDataUriPromise = readFile(join(process.cwd(), "public", "main-img.jpeg")).then(
       (buf) => `data:image/jpeg;base64,${buf.toString("base64")}`
     );
   }
   return posterDataUriPromise;
+}
+
+// KME/LMP logos (pre-cropped from the combined public/logos.png - see
+// BookingPortal's invite header) shown at the top-left of the ticket.
+let logoDataUrisPromise: Promise<{ kme: string; lmp: string } | null> | null = null;
+function getLogoDataUris() {
+  if (!logoDataUrisPromise) {
+    logoDataUrisPromise = Promise.all([
+      readFile(join(process.cwd(), "public", "logo-kme.png")),
+      readFile(join(process.cwd(), "public", "logo-lmp.png")),
+    ])
+      .then(([kme, lmp]) => ({
+        kme: `data:image/png;base64,${kme.toString("base64")}`,
+        lmp: `data:image/png;base64,${lmp.toString("base64")}`,
+      }))
+      .catch(() => null); // logos not added yet - ticket still renders fine without them
+  }
+  return logoDataUrisPromise;
 }
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -55,6 +73,7 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   }
 
   const poster = await getPosterDataUri();
+  const logos = await getLogoDataUris();
   const seatLabels = booking.seats.map((s) => s.label).join(", ") || "—";
 
   return new ImageResponse(
@@ -79,6 +98,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             borderRight: "3px dashed #d8cdbd",
           }}
         >
+          {logos && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logos.kme} alt="" width={110} height={21} style={{ objectFit: "contain" }} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logos.lmp} alt="" width={30} height={28} style={{ objectFit: "contain" }} />
+            </div>
+          )}
           <div style={{ display: "flex", fontSize: 15, color: "#92867a" }}>NO. {booking.ref}</div>
           <div
             style={{
@@ -95,7 +122,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           <div style={{ display: "flex", flexDirection: "column", marginTop: 18 }}>
             <StubRow label="Date" value="25 Oct 2026" />
             <StubRow label="Venue" value="Mahakavi Kalidas Natyamandir" />
-            <StubRow label="Time" value="4:00 PM" />
+            <StubRow label="Event" value="10:00 AM onwards" />
+            <StubRow label="Grand Drama" value="4:00 PM" />
             <StubRow label="Rate" value={`Rs ${booking.category.price}`} />
             <StubRow label="Seat" value={seatLabels} />
           </div>
@@ -169,7 +197,8 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             <Row label="Category" value={booking.category.name} />
             <Row label="Seats" value={seatLabels} />
             <Row label="Date" value="Sunday, 25 October 2026" />
-            <Row label="Time" value="4:00 PM" />
+            <Row label="Event" value="10:00 AM onwards" />
+            <Row label="Grand Drama" value="4:00 PM" />
             <Row label="Venue" value="Mahakavi Kalidas Natyamandir, Mulund (West), Mumbai" />
             <Row label="Amount Paid" value={`Rs ${booking.amountDue ?? 0}`} />
           </div>

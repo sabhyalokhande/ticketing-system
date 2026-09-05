@@ -217,7 +217,9 @@ export function EventDetailsCard() {
     <div className="grid w-full grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 rounded-lg border-2 border-amber-400 bg-amber-50 p-4 text-left text-xs dark:border-amber-500 dark:bg-amber-950/40">
       <span className="font-medium text-amber-700 dark:text-amber-400">Date</span>
       <span className="text-amber-950 dark:text-amber-100">Sunday, 25 October 2026</span>
-      <span className="font-medium text-amber-700 dark:text-amber-400">Show time</span>
+      <span className="font-medium text-amber-700 dark:text-amber-400">Event starts</span>
+      <span className="text-amber-950 dark:text-amber-100">10:00 AM onwards</span>
+      <span className="font-medium text-amber-700 dark:text-amber-400">Grand Drama</span>
       <span className="text-amber-950 dark:text-amber-100">4:00 PM</span>
       <span className="font-medium text-amber-700 dark:text-amber-400">Venue</span>
       <span className="text-amber-950 dark:text-amber-100">
