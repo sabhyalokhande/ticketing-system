@@ -139,11 +139,14 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           </div>
         </div>
 
+        {/* Width matches the flyer's aspect ratio (852x1155) at height 644 so
+            "cover" shows the whole image without cropping the logos off the
+            top-left. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={poster}
           alt="Play poster"
-          width={364}
+          width={475}
           height={644}
           style={{ objectFit: "cover", borderRight: "6px dashed #d8cdbd" }}
         />
