@@ -110,10 +110,21 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
           <div
             style={{
               display: "flex",
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#c2410c",
+              marginTop: 8,
+            }}
+          >
+            Konkan Maratha Melava 2026
+          </div>
+          <div
+            style={{
+              display: "flex",
               fontSize: 18,
               fontWeight: 700,
               color: "#2b241c",
-              marginTop: 8,
+              marginTop: 4,
               lineHeight: 1.25,
             }}
           >
@@ -166,7 +177,17 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", marginTop: 31, gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 31, gap: 8 }}>
+            <div
+              style={{
+                display: "flex",
+                fontSize: 24,
+                fontWeight: 700,
+                color: "#c2410c",
+              }}
+            >
+              Konkan Maratha Melava 2026
+            </div>
             <div
               style={{
                 display: "flex",
@@ -176,9 +197,6 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
               }}
             >
               Aamchya Pidhichi Goshtach Vegali
-            </div>
-            <div style={{ display: "flex", fontSize: 22, color: "#92867a" }}>
-              Konkan Maratha Melava 2026
             </div>
           </div>
 
