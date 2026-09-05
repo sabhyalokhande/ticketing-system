@@ -29,10 +29,16 @@ export async function BookingPortal({
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-4 py-10 md:flex-row md:items-center md:justify-center">
       {/* Poster + trailer - left column on desktop, on top on mobile */}
       <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
-        <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
-          {previewCode
-            ? "Private preview - booking opens publicly 5th September 2026, 9:00 AM"
-            : "Booking will start from 5th September 2026, 9:00 AM"}
+        <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-center text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
+          {previewCode ? (
+            <span className="text-sm font-semibold">
+              Private preview - booking opens publicly 5th September 2026, 9:00 AM
+            </span>
+          ) : (
+            <span className="text-lg leading-snug [font-family:var(--font-marathi)]">
+              आम्गेलो कारवार कोंकण मराठा मेळावो २०२६
+            </span>
+          )}
         </div>
 
         <Poster />
