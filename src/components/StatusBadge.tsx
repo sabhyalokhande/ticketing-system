@@ -7,7 +7,7 @@ const STYLES: Record<string, string> = {
   EXPIRED: "bg-gray-200 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
 };
 
-const LABELS: Record<string, string> = {
+export const STATUS_LABELS: Record<string, string> = {
   PENDING: "Pending review",
   ALLOCATED: "Allocated Seat",
   PAYMENT_SUBMITTED: "Payment submitted",
@@ -19,7 +19,7 @@ const LABELS: Record<string, string> = {
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`badge ${STYLES[status] ?? "bg-gray-100 text-gray-700"}`}>
-      {LABELS[status] ?? status}
+      {STATUS_LABELS[status] ?? status}
     </span>
   );
 }

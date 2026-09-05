@@ -99,11 +99,16 @@ export default async function AdminPage({
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Coordinator dashboard</h1>
-        <form action={adminLogout}>
-          <button type="submit" className="btn-secondary">
-            Log out
-          </button>
-        </form>
+        <div className="flex gap-2">
+          <a href="/api/admin/export" className="btn-secondary">
+            Export to Excel
+          </a>
+          <form action={adminLogout}>
+            <button type="submit" className="btn-secondary">
+              Log out
+            </button>
+          </form>
+        </div>
       </header>
 
       {/* At-a-glance counts - the full pipeline, and how much inventory is left */}
