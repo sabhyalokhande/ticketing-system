@@ -9,9 +9,9 @@ import {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; allowDuplicate?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, allowDuplicate } = await searchParams;
 
   if (!isBookingOpen()) {
     return (
@@ -34,5 +34,5 @@ export default async function HomePage({
     );
   }
 
-  return <BookingPortal error={error} />;
+  return <BookingPortal error={error} allowDuplicate={allowDuplicate === "1"} />;
 }

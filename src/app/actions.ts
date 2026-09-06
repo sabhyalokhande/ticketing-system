@@ -47,6 +47,21 @@ export async function createBooking(formData: FormData) {
 
   const { name, mobile, categoryId, regionId, quantity } = parsed.data;
 
+  // Guard against accidental double-booking: people re-submit thinking the
+  // first one didn't go through. If this WhatsApp number already has a live
+  // booking, send them to it instead of quietly creating a second. They can
+  // still force a genuine extra booking from that page ("allowDuplicate").
+  if (formData.get("allowDuplicate") !== "1") {
+    const existing = await prisma.booking.findFirst({
+      where: { mobile, status: { notIn: ["REJECTED", "EXPIRED"] } },
+      orderBy: { createdAt: "desc" },
+      select: { ref: true },
+    });
+    if (existing) {
+      redirect(`/status?ref=${existing.ref}&mobile=${mobile}&dup=1`);
+    }
+  }
+
   const [category, region] = await Promise.all([
     prisma.category.findUnique({ where: { id: categoryId } }),
     prisma.region.findUnique({ where: { id: regionId } }),

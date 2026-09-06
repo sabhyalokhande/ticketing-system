@@ -16,9 +16,12 @@ const TRAILER_URL = "https://youtu.be/-bxvbAdHkYQ?si=ASe1Ic9L37WRgBOF";
 export async function BookingPortal({
   error,
   previewCode,
+  allowDuplicate,
 }: {
   error?: string;
   previewCode?: string;
+  /** Set when the user chose "book another anyway" past the duplicate check. */
+  allowDuplicate?: boolean;
 }) {
   const [categories, regions] = await Promise.all([
     prisma.category.findMany({ orderBy: { price: "desc" } }),
@@ -59,6 +62,13 @@ export async function BookingPortal({
           First-come, First-served basis.
         </p>
 
+        {allowDuplicate && (
+          <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
+            You&apos;re making an <strong>additional</strong> booking under a WhatsApp number that
+            already has one. Only continue if you genuinely want more tickets.
+          </div>
+        )}
+
         {error && (
           <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
             {error}
@@ -72,6 +82,7 @@ export async function BookingPortal({
         ) : (
           <form action={createBooking} className="flex flex-col gap-4">
             {previewCode && <input type="hidden" name="previewCode" value={previewCode} />}
+            {allowDuplicate && <input type="hidden" name="allowDuplicate" value="1" />}
 
             <Field label="Full Name">
               <input
