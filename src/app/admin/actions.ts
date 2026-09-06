@@ -138,7 +138,10 @@ export async function rejectBooking(formData: FormData) {
 export async function deallocateBooking(bookingId: string) {
   await requireAdmin();
 
-  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: { seats: { select: { label: true }, orderBy: { label: "asc" } } },
+  });
   if (!booking) return withNotice("Booking not found", false);
   if (booking.status !== "ALLOCATED") {
     return withNotice(
@@ -147,6 +150,8 @@ export async function deallocateBooking(bookingId: string) {
     );
   }
 
+  const freed = booking.seats.map((s) => s.label).join(", ") || "none";
+
   await prisma.$transaction([
     prisma.seat.updateMany({ where: { bookingId: booking.id }, data: { bookingId: null } }),
     prisma.booking.update({
@@ -154,7 +159,10 @@ export async function deallocateBooking(bookingId: string) {
       data: { status: "PENDING", allocatedAt: null, expiresAt: null, amountDue: null },
     }),
   ]);
-  return withNotice(`${booking.ref} sent back to pending — seats freed. Allocate it again to reassign.`);
+  // Name the freed seats so an accidental click can be undone by re-picking them.
+  return withNotice(
+    `${booking.ref} sent back to pending. Freed seats: ${freed}. Allocate it again (re-pick the same seats to undo).`,
+  );
 }
 
 /** Permanently deletes a booking (any status), freeing any seats it held. */
