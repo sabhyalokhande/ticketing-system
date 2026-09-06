@@ -6,13 +6,7 @@ import {
   EventDetailsCard,
 } from "@/components/BookingPortal";
 
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string; allowDuplicate?: string }>;
-}) {
-  const { error, allowDuplicate } = await searchParams;
-
+export default async function HomePage() {
   if (!isBookingOpen()) {
     return (
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-5 px-4 py-10 text-center">
@@ -34,5 +28,5 @@ export default async function HomePage({
     );
   }
 
-  return <BookingPortal error={error} allowDuplicate={allowDuplicate === "1"} />;
+  return <BookingPortal />;
 }

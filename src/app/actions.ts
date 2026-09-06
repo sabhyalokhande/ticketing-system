@@ -18,18 +18,34 @@ const bookingSchema = z.object({
   quantity: z.coerce.number().int().min(1, "At least 1 ticket").max(10, "Max 10 tickets per request"),
 });
 
-export async function createBooking(formData: FormData) {
+export type BookingFormState = {
+  error?: string;
+  // Set when this WhatsApp number already has a live booking - the form
+  // shows a "you already booked" dialog instead of creating another.
+  duplicate?: {
+    ref: string;
+    name: string;
+    mobile: string;
+    category: string;
+    region: string;
+    quantity: number;
+    status: string;
+  };
+};
+
+export async function createBooking(
+  _prev: BookingFormState,
+  formData: FormData,
+): Promise<BookingFormState> {
   // Belt-and-braces: the form itself is hidden until this instant, but
   // enforce it here too so nobody can jump the first-come-first-served
   // queue by posting directly. A valid preview code (submitted as a hidden
   // field from /preview/<code>) is the only early-access path.
   const previewCode = String(formData.get("previewCode") ?? "");
   const viaPreview = isValidPreviewCode(previewCode);
-  // Where to send the user back to if their submission is rejected.
-  const backTo = viaPreview ? `/preview/${previewCode}` : "/";
 
   if (!isBookingOpen() && !viaPreview) {
-    redirect(`/?error=${encodeURIComponent("Booking hasn't opened yet.")}`);
+    return { error: "Booking hasn't opened yet." };
   }
 
   const parsed = bookingSchema.safeParse({
@@ -41,24 +57,33 @@ export async function createBooking(formData: FormData) {
   });
 
   if (!parsed.success) {
-    const message = parsed.error.issues[0]?.message ?? "Invalid submission";
-    redirect(`${backTo}?error=${encodeURIComponent(message)}`);
+    return { error: parsed.error.issues[0]?.message ?? "Invalid submission" };
   }
 
   const { name, mobile, categoryId, regionId, quantity } = parsed.data;
 
   // Guard against accidental double-booking: people re-submit thinking the
   // first one didn't go through. If this WhatsApp number already has a live
-  // booking, send them to it instead of quietly creating a second. They can
-  // still force a genuine extra booking from that page ("allowDuplicate").
+  // booking, hand its details back so the form can show a dialog. They can
+  // still force a genuine extra booking ("allowDuplicate").
   if (formData.get("allowDuplicate") !== "1") {
     const existing = await prisma.booking.findFirst({
       where: { mobile, status: { notIn: ["REJECTED", "EXPIRED"] } },
       orderBy: { createdAt: "desc" },
-      select: { ref: true },
+      include: { category: true, region: true },
     });
     if (existing) {
-      redirect(`/status?ref=${existing.ref}&mobile=${mobile}&dup=1`);
+      return {
+        duplicate: {
+          ref: existing.ref,
+          name: existing.name,
+          mobile: existing.mobile,
+          category: existing.category.name,
+          region: existing.region.name,
+          quantity: existing.quantity,
+          status: existing.status,
+        },
+      };
     }
   }
 
@@ -67,7 +92,7 @@ export async function createBooking(formData: FormData) {
     prisma.region.findUnique({ where: { id: regionId } }),
   ]);
   if (!category || !region) {
-    redirect(`${backTo}?error=${encodeURIComponent("Category or region no longer available")}`);
+    return { error: "Category or region no longer available" };
   }
 
   const ref = await generateBookingRef();

@@ -13,17 +13,14 @@ export const metadata: Metadata = {
 // 404s, and the public root URL is never affected by this route.
 export default async function PreviewPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ code: string }>;
-  searchParams: Promise<{ error?: string }>;
 }) {
   const { code } = await params;
-  const { error } = await searchParams;
 
   if (!isValidPreviewCode(code)) {
     notFound();
   }
 
-  return <BookingPortal error={error} previewCode={code} />;
+  return <BookingPortal previewCode={code} />;
 }

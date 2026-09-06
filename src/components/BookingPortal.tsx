@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { createBooking } from "@/app/actions";
+import { BookingForm } from "@/components/BookingForm";
 
 // Only render the logo strip once the assets have actually been added to public/.
 function hasInviteLogos() {
@@ -13,16 +13,7 @@ const TRAILER_URL = "https://youtu.be/-bxvbAdHkYQ?si=ASe1Ic9L37WRgBOF";
 
 // The poster + booking form layout. Rendered on the public home page once
 // booking has opened, and on the private /preview/<code> URL before then.
-export async function BookingPortal({
-  error,
-  previewCode,
-  allowDuplicate,
-}: {
-  error?: string;
-  previewCode?: string;
-  /** Set when the user chose "book another anyway" past the duplicate check. */
-  allowDuplicate?: boolean;
-}) {
+export async function BookingPortal({ previewCode }: { previewCode?: string }) {
   const [categories, regions] = await Promise.all([
     prisma.category.findMany({ orderBy: { price: "desc" } }),
     prisma.region.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
@@ -62,97 +53,16 @@ export async function BookingPortal({
           First-come, First-served basis.
         </p>
 
-        {allowDuplicate && (
-          <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
-            You&apos;re making an <strong>additional</strong> booking under a WhatsApp number that
-            already has one. Only continue if you genuinely want more tickets.
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
-            {error}
-          </div>
-        )}
-
         {categories.length === 0 || regions.length === 0 ? (
           <p className="text-sm text-black/60 dark:text-white/60">
             The portal isn&apos;t configured yet &mdash; no categories or residence areas found.
           </p>
         ) : (
-          <form action={createBooking} className="flex flex-col gap-4">
-            {previewCode && <input type="hidden" name="previewCode" value={previewCode} />}
-            {allowDuplicate && <input type="hidden" name="allowDuplicate" value="1" />}
-
-            <Field label="Full Name">
-              <input
-                name="name"
-                required
-                minLength={2}
-                maxLength={100}
-                placeholder="Your Name"
-                className="input"
-              />
-            </Field>
-
-            <Field label="Mobile Number (WhatsApp number)">
-              <input
-                name="mobile"
-                required
-                inputMode="numeric"
-                pattern="[6-9][0-9]{9}"
-                title="10-digit WhatsApp number"
-                maxLength={10}
-                placeholder="10-digit WhatsApp number"
-                className="input"
-              />
-            </Field>
-
-            <Field label="Category">
-              <select name="categoryId" required className="input" defaultValue="">
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} (Rs {c.price} per ticket)
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <Field label="Residence Area">
-              <select name="regionId" required className="input" defaultValue="">
-                <option value="" disabled>
-                  Select your residence area
-                </option>
-                {regions.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <Field label="Number of Tickets">
-              <select name="quantity" required className="input" defaultValue="1">
-                {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </Field>
-
-            <button type="submit" className="btn-primary mt-2">
-              Confirm booking
-            </button>
-
-            <p className="text-xs text-black/50 dark:text-white/50">
-              You&apos;ll get a booking reference to look up your status. Save it &mdash;
-              you&apos;ll need it (with this mobile number) to check on your request and pay.
-            </p>
-          </form>
+          <BookingForm
+            categories={categories.map((c) => ({ id: c.id, name: c.name, price: c.price }))}
+            regions={regions.map((r) => ({ id: r.id, name: r.name }))}
+            previewCode={previewCode}
+          />
         )}
 
         <VolunteerContacts />
@@ -282,14 +192,5 @@ function InviteHeader() {
         </p>
       </div>
     </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1 text-sm font-medium">
-      {label}
-      {children}
-    </label>
   );
 }

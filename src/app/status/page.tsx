@@ -16,10 +16,9 @@ export default async function StatusPage({
     mobile?: string;
     error?: string;
     justSubmitted?: string;
-    dup?: string;
   }>;
 }) {
-  const { ref, mobile, error, justSubmitted, dup } = await searchParams;
+  const { ref, mobile, error, justSubmitted } = await searchParams;
 
   if (!ref || !mobile) {
     return (
@@ -102,22 +101,6 @@ export default async function StatusPage({
         <h1 className="text-2xl font-semibold">Booking {booking.ref}</h1>
         <StatusBadge status={booking.status} />
       </header>
-
-      {dup === "1" && (
-        <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
-          <p className="font-semibold">You already have a booking on this WhatsApp number</p>
-          <p className="mt-1">
-            No need to book again. You&apos;ll get your allocated seats and payment link within 2
-            working days on your WhatsApp number. Your existing booking is shown below.
-          </p>
-          <Link
-            href="/?allowDuplicate=1#booking-form"
-            className="btn-secondary mt-3 inline-flex"
-          >
-            I still want to book another ticket
-          </Link>
-        </div>
-      )}
 
       {justSubmitted === "1" && (
         <div className="rounded-lg border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
