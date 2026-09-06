@@ -159,8 +159,9 @@ function DuplicateDialog({
           You already have a booking
         </h2>
         <p className="mt-2 text-center text-sm text-black/70 dark:text-white/70">
-          We already have a booking on this WhatsApp number. No need to book again &mdash; you&apos;ll
-          get your allocated seats and payment link within 2 working days on WhatsApp.
+          We already have a booking under this name / WhatsApp number. No need to book again
+          &mdash; you&apos;ll get your allocated seats and payment link within 2 working days on
+          WhatsApp.
         </p>
 
         <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded-lg bg-black/5 px-3 py-2 text-sm dark:bg-white/10">

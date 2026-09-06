@@ -13,6 +13,7 @@ import {
   adminLogout,
   rejectBooking,
   confirmPayment,
+  deallocateBooking,
   updateCategoryPrice,
   addSeats,
   addRegion,
@@ -181,6 +182,11 @@ export default async function AdminPage({
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 sm:shrink-0">
+                      <form action={deallocateBooking.bind(null, b.id)}>
+                        <button type="submit" className="btn-secondary" title="Free these seats and send the request back to Pending so you can allocate different seats">
+                          Deallocate
+                        </button>
+                      </form>
                       <RejectForm bookingId={b.id} />
                       <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                     </div>

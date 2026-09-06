@@ -130,6 +130,33 @@ export async function rejectBooking(formData: FormData) {
   return withNotice(`Rejected ${booking.ref}`);
 }
 
+/**
+ * Sends a blocked (ALLOCATED) booking back to the pending queue and frees its
+ * seats, so the coordinator can allocate it again to different seats. The
+ * request itself is kept - only the seat assignment is undone.
+ */
+export async function deallocateBooking(bookingId: string) {
+  await requireAdmin();
+
+  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  if (!booking) return withNotice("Booking not found", false);
+  if (booking.status !== "ALLOCATED") {
+    return withNotice(
+      `Only a blocked booking awaiting payment can be deallocated (${booking.ref} is ${booking.status.toLowerCase()})`,
+      false,
+    );
+  }
+
+  await prisma.$transaction([
+    prisma.seat.updateMany({ where: { bookingId: booking.id }, data: { bookingId: null } }),
+    prisma.booking.update({
+      where: { id: booking.id },
+      data: { status: "PENDING", allocatedAt: null, expiresAt: null, amountDue: null },
+    }),
+  ]);
+  return withNotice(`${booking.ref} sent back to pending — seats freed. Allocate it again to reassign.`);
+}
+
 /** Permanently deletes a booking (any status), freeing any seats it held. */
 export async function deleteBooking(bookingId: string) {
   await requireAdmin();
