@@ -15,6 +15,7 @@ import {
   adminLogout,
   rejectBooking,
   confirmPayment,
+  adminConfirmPayment,
   updateCategoryPrice,
   addSeats,
   addRegion,
@@ -193,6 +194,7 @@ export default async function AdminPage({
                     amountDue={b.amountDue ?? 0}
                     deadlineText={b.expiresAt ? formatDateIST(b.expiresAt) : undefined}
                   />
+                  <AdminConfirmForm bookingId={b.id} />
                 </div>
               ))}
             </div>
@@ -542,6 +544,29 @@ function groupSeatsByRow<T extends { label: string }>(seats: T[]): { row: string
     byRow.get(row)!.push(seat);
   }
   return order.map((row) => ({ row, seats: byRow.get(row)! }));
+}
+
+// Lets the coordinator confirm a blocked booking straight from here using a
+// transaction ID the payer sent them directly (e.g. on WhatsApp) instead of
+// through the site - covers payments made after the window already lapsed,
+// or whenever it's just faster than waiting for the payer to submit online.
+function AdminConfirmForm({ bookingId }: { bookingId: string }) {
+  return (
+    <form
+      action={adminConfirmPayment}
+      className="flex flex-wrap items-center gap-2 border-t border-black/10 pt-2 dark:border-white/15"
+    >
+      <input type="hidden" name="bookingId" value={bookingId} />
+      <input
+        name="transactionDetails"
+        placeholder="Transaction ID / UTR (if you already have it)"
+        className="input min-w-0 flex-1 text-xs"
+      />
+      <button type="submit" className="btn-secondary shrink-0" title="Confirm using a transaction ID you already have, without waiting for the payer to submit it">
+        Confirm now
+      </button>
+    </form>
+  );
 }
 
 function RejectForm({ bookingId }: { bookingId: string }) {

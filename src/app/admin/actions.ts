@@ -218,6 +218,53 @@ export async function confirmPayment(bookingId: string) {
   return withNotice(`Confirmed ${booking.ref}. Tickets finalized.`);
 }
 
+const adminConfirmSchema = z.object({
+  bookingId: z.string().min(1),
+  transactionDetails: z.string().trim().max(500).optional(),
+});
+
+/**
+ * Confirms a booking using transaction details the coordinator already has
+ * (e.g. a UTR the payer sent over WhatsApp instead of through the site) -
+ * for a blocked booking whose payment window already lapsed before they
+ * could submit it online. Works on an ALLOCATED booking directly, so the
+ * payer doesn't have to go through /status at all.
+ */
+export async function adminConfirmPayment(formData: FormData) {
+  await requireAdmin();
+  const parsed = adminConfirmSchema.safeParse({
+    bookingId: formData.get("bookingId"),
+    transactionDetails: formData.get("transactionDetails") || undefined,
+  });
+  if (!parsed.success) return withNotice("Invalid request", false);
+
+  const booking = await prisma.booking.findUnique({ where: { id: parsed.data.bookingId } });
+  if (!booking) return withNotice("Booking not found", false);
+  if (booking.status !== "ALLOCATED" && booking.status !== "PAYMENT_SUBMITTED") {
+    return withNotice(
+      `Only a blocked or payment-submitted booking can be confirmed this way (${booking.ref} is ${booking.status.toLowerCase()})`,
+      false,
+    );
+  }
+
+  const transactionDetails = parsed.data.transactionDetails || booking.transactionDetails;
+  if (!transactionDetails) {
+    return withNotice("Enter the transaction ID / UTR number you received", false);
+  }
+
+  const now = new Date();
+  await prisma.booking.update({
+    where: { id: booking.id },
+    data: {
+      status: "CONFIRMED",
+      transactionDetails,
+      paymentSubmittedAt: booking.paymentSubmittedAt ?? now,
+      confirmedAt: now,
+    },
+  });
+  return withNotice(`Confirmed ${booking.ref} with admin-entered payment details. Tickets finalized.`);
+}
+
 const paymentWindowSchema = z
   .object({
     holdMode: z.enum(["hours", "end-of-next-day"]),
