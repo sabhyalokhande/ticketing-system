@@ -4,7 +4,6 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { generateBookingRef } from "@/lib/ref";
-import { expireStaleBookings } from "@/lib/expiry";
 import { isBookingOpen, isValidPreviewCode } from "@/lib/config";
 
 const bookingSchema = z.object({
@@ -125,7 +124,12 @@ const MAX_SCREENSHOT_BYTES = 6 * 1024 * 1024; // 6MB
 const ALLOWED_SCREENSHOT_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
 
 export async function submitPayment(formData: FormData) {
-  await expireStaleBookings();
+  // Deliberately no expireStaleBookings() call here: the expiry window
+  // gates the unused payment link, not a submission actually in flight.
+  // Someone who has the form open and hits Submit right as (or just after)
+  // their deadline ticks over has effectively already paid - honor it as
+  // long as the booking is still ALLOCATED (i.e. nothing else has already
+  // swept it away in the meantime).
 
   const parsed = paymentSchema.safeParse({
     ref: formData.get("ref"),
