@@ -8,7 +8,7 @@ import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AlertModal } from "@/components/AlertModal";
 import { PaymentAlerts } from "@/components/PaymentAlerts";
-import { submitPayment } from "../actions";
+import { PaymentSubmitForm } from "@/components/PaymentSubmitForm";
 
 export default async function StatusPage({
   searchParams,
@@ -221,35 +221,7 @@ export default async function StatusPage({
             </div>
           )}
 
-          <form action={submitPayment} className="flex flex-col gap-3">
-            <input type="hidden" name="ref" value={booking.ref} />
-            <input type="hidden" name="mobile" value={booking.mobile} />
-            <label className="flex flex-col gap-1 text-sm font-medium">
-              Transaction ID / UTR number{" "}
-              <span className="font-normal text-red-600 dark:text-red-400">(compulsory)</span>
-              <textarea
-                name="transactionDetails"
-                required
-                minLength={3}
-                maxLength={500}
-                rows={3}
-                placeholder="Paste your UPI transaction ID / reference number here after paying"
-                className="input"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm font-medium">
-              Payment screenshot (optional)
-              <input
-                name="screenshot"
-                type="file"
-                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-                className="input file:mr-3 file:rounded file:border-0 file:bg-black/10 file:px-2 file:py-1 file:text-xs dark:file:bg-white/10"
-              />
-            </label>
-            <button type="submit" className="btn-primary">
-              Submit payment details
-            </button>
-          </form>
+          <PaymentSubmitForm bookingRef={booking.ref} mobile={booking.mobile} />
         </div>
       )}
 
