@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { config } from "@/lib/config";
@@ -172,16 +171,6 @@ export default async function StatusPage({
               },
             ]}
           />
-
-          <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
-            <Image
-              src="/main-img.jpeg"
-              alt="Aamgelo Karwar Konkan Maratha Melava 2026 - event invite"
-              width={852}
-              height={1280}
-              className="h-auto w-full"
-            />
-          </div>
 
           <div>
             <p className="text-sm font-medium">
