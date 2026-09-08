@@ -38,13 +38,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/Drama-Image.jpeg"],
+    images: ["/main-img.jpeg"],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/Drama-Image.jpeg"],
+    images: ["/main-img.jpeg"],
   },
 };
 
