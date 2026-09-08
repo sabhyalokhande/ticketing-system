@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ShareLinkButtons } from "@/components/ShareLinkButtons";
 import { DeleteBookingButton } from "@/components/DeleteBookingButton";
 import { DeallocateButton } from "@/components/DeallocateButton";
+import { RecoverBookingButton } from "@/components/RecoverBookingButton";
 import { PaymentWindowForm } from "@/components/PaymentWindowForm";
 import {
   adminLogout,
@@ -381,6 +382,9 @@ export default async function AdminPage({
                     )}
                     {b.rejectionReason && (
                       <span className="text-black/50 dark:text-white/50">({b.rejectionReason})</span>
+                    )}
+                    {b.status === "EXPIRED" && (
+                      <RecoverBookingButton bookingId={b.id} bookingRef={b.ref} />
                     )}
                     <DeleteBookingButton bookingId={b.id} bookingRef={b.ref} />
                   </div>

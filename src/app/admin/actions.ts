@@ -165,6 +165,29 @@ export async function deallocateBooking(bookingId: string) {
   );
 }
 
+/**
+ * Sends an EXPIRED booking back to the pending queue so the coordinator can
+ * allocate it again (and send a fresh payment link). The seats it originally
+ * held were already released back to the pool when it expired - and may
+ * since have gone to someone else - so this can't restore the same seats;
+ * it just re-opens the request for a new allocation.
+ */
+export async function recoverExpiredBooking(bookingId: string) {
+  await requireAdmin();
+
+  const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+  if (!booking) return withNotice("Booking not found", false);
+  if (booking.status !== "EXPIRED") {
+    return withNotice(`Only an expired booking can be recovered (${booking.ref} is ${booking.status.toLowerCase()})`, false);
+  }
+
+  await prisma.booking.update({
+    where: { id: booking.id },
+    data: { status: "PENDING", allocatedAt: null, expiresAt: null, amountDue: null },
+  });
+  return withNotice(`${booking.ref} recovered - back in Pending. Allocate seats again to send a fresh payment link.`);
+}
+
 /** Permanently deletes a booking (any status), freeing any seats it held. */
 export async function deleteBooking(bookingId: string) {
   await requireAdmin();
