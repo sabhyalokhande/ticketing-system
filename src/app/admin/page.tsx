@@ -74,7 +74,6 @@ export default async function AdminPage({
         include: { category: true, region: true, ...seatSelect },
         omit: { paymentScreenshot: true },
         orderBy: { updatedAt: "desc" },
-        take: 30,
       }),
       prisma.seat.groupBy({ by: ["categoryId"], _count: { _all: true } }),
       prisma.seat.groupBy({ by: ["categoryId"], where: { bookingId: null }, _count: { _all: true } }),
@@ -367,7 +366,7 @@ export default async function AdminPage({
       </Disclosure>
 
       {/* History - reference only, collapsed so it doesn't push the working queues down */}
-      <Disclosure title="🕘 Recent history" subtitle={`Last ${history.length} confirmed, rejected, or expired`}>
+      <Disclosure title="🕘 Recent history" subtitle={`${history.length} confirmed, rejected, or expired`}>
         {history.length === 0 ? (
           <Empty text="Nothing here yet." />
         ) : (
