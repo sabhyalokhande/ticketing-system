@@ -21,6 +21,12 @@ export async function BookingPortal({ previewCode }: { previewCode?: string }) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center gap-8 px-4 py-10 md:flex-row md:items-center md:justify-center">
+      {/* Invite card - shown first on mobile, above the poster; on desktop the
+          copy further down (in the form column) is the one that's visible. */}
+      <div className="w-full md:hidden">
+        <InviteHeader />
+      </div>
+
       {/* Poster + trailer - left column on desktop, on top on mobile */}
       <div className="flex flex-col gap-3 md:sticky md:top-10 md:w-[280px] md:shrink-0">
         <div className="rounded-lg border-2 border-amber-400 bg-amber-50 px-4 py-3 text-center text-amber-900 dark:border-amber-500 dark:bg-amber-950/40 dark:text-amber-100">
@@ -46,7 +52,9 @@ export async function BookingPortal({ previewCode }: { previewCode?: string }) {
 
       {/* Form - right column on desktop, below the poster on mobile */}
       <div id="booking-form" className="flex w-full min-w-0 max-w-lg scroll-mt-6 flex-col gap-6">
-        <InviteHeader />
+        <div className="hidden md:block">
+          <InviteHeader />
+        </div>
 
         <p className="text-sm text-black/60 dark:text-white/60">
           Fill this form to request for tickets. Requests will be handled strictly on

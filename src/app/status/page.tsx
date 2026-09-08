@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { config } from "@/lib/config";
@@ -6,6 +7,7 @@ import { formatDateTimeIST } from "@/lib/date";
 import { generateUpiQrDataUrl } from "@/lib/qr";
 import { StatusBadge } from "@/components/StatusBadge";
 import { AlertModal } from "@/components/AlertModal";
+import { PaymentAlerts } from "@/components/PaymentAlerts";
 import { submitPayment } from "../actions";
 
 export default async function StatusPage({
@@ -156,10 +158,31 @@ export default async function StatusPage({
 
       {booking.status === "ALLOCATED" && (
         <div className="card flex flex-col gap-4">
-          <AlertModal icon="📱" title="Scan from another device" dismissLabel="Got it">
-            Scan the QR code from another device for a successful payment. Scanning it on this
-            same phone will not work.
-          </AlertModal>
+          <PaymentAlerts
+            steps={[
+              {
+                icon: "📱",
+                title: "Scan from another device",
+                body: "Scan the QR code from another device for a successful payment. Scanning it on this same phone will not work.",
+              },
+              {
+                icon: "🧾",
+                title: "Transaction ID is compulsory",
+                body: "After paying, you must enter the UPI transaction ID / UTR number below. Submissions without it cannot be verified and your seats won't be confirmed.",
+              },
+            ]}
+          />
+
+          <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/15">
+            <Image
+              src="/main-img.jpeg"
+              alt="Aamgelo Karwar Konkan Maratha Melava 2026 - event invite"
+              width={852}
+              height={1280}
+              className="h-auto w-full"
+            />
+          </div>
+
           <div>
             <p className="text-sm font-medium">
               Pay ₹{booking.amountDue} within {booking.expiresAt ? "the deadline below" : "the payment window"}{" "}
@@ -202,7 +225,8 @@ export default async function StatusPage({
             <input type="hidden" name="ref" value={booking.ref} />
             <input type="hidden" name="mobile" value={booking.mobile} />
             <label className="flex flex-col gap-1 text-sm font-medium">
-              Transaction / UTR details
+              Transaction ID / UTR number{" "}
+              <span className="font-normal text-red-600 dark:text-red-400">(compulsory)</span>
               <textarea
                 name="transactionDetails"
                 required
