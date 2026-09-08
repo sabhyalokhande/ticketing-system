@@ -1,26 +1,15 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { isValidPreviewCode } from "@/lib/config";
-import { BookingPortal } from "@/components/BookingPortal";
 
 // Keep the preview URL out of search engines.
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Private early-access URL: /preview/<secret>. Shows the full booking page
-// (poster + working form) before booking opens to the public. Any other code
-// 404s, and the public root URL is never affected by this route.
-export default async function PreviewPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
-  const { code } = await params;
-
-  if (!isValidPreviewCode(code)) {
-    notFound();
-  }
-
-  return <BookingPortal previewCode={code} />;
+// Private early-access URL: /preview/<secret>. It served the booking page
+// before booking opened to the public; now that booking is live, anyone who
+// still lands here (old links floating around) gets sent straight to the
+// real page instead of a stale preview.
+export default async function PreviewPage() {
+  redirect("/");
 }
