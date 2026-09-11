@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdmin, destroyAdminSession } from "@/lib/auth";
 import { expireStaleBookings } from "@/lib/expiry";
 import { addSeatsToCategory } from "@/lib/seats";
-import { resolveSeatCategoryId } from "@/lib/categories";
+import { resolveSeatCategoryId, seatPoolRowLimit, seatWithinPoolLimit } from "@/lib/categories";
 import { formatDateTimeIST } from "@/lib/date";
 import {
   computeExpiry,
@@ -70,6 +70,15 @@ export async function allocateBookingWithSeats(
     return {
       ok: false,
       error: "One or more selected seats were just taken or are invalid - please reselect",
+    };
+  }
+
+  const outOfRange = seats.find((s) => !seatWithinPoolLimit(s.label, booking.category.name));
+  if (outOfRange) {
+    const limit = seatPoolRowLimit(booking.category.name);
+    return {
+      ok: false,
+      error: `Seat ${outOfRange.label} is outside the rows ${booking.category.name} is allowed (up to row ${limit}) - please reselect`,
     };
   }
 
