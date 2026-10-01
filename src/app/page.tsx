@@ -1,3 +1,4 @@
+import { connection } from "next/server";
 import { isBookingOpen } from "@/lib/config";
 import {
   BookingPortal,
@@ -7,6 +8,10 @@ import {
 } from "@/components/BookingPortal";
 
 export default async function HomePage() {
+  // Render per request: without this the page is prerendered at build time,
+  // freezing the booking-open check and the category/region lists from the DB.
+  await connection();
+
   if (!isBookingOpen()) {
     return (
       <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center gap-5 px-4 py-10 text-center">
